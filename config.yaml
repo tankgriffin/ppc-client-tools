@@ -1,0 +1,174 @@
+# Enhanced PPC Client Tools Configuration
+# Version 2.0 - Claude AI Integration
+
+# Application Settings
+app:
+  name: "Enhanced PPC Client Tools"
+  version: "2.0.0"
+  description: "AI-powered strategic intelligence for PPC campaigns"
+
+# Claude AI Research Configuration
+claude_research:
+  # Number of research phases
+  phases: 5
+  
+  # Phase descriptions
+  phase_descriptions:
+    phase1: "Business Intelligence Analysis"
+    phase2: "Competitive Landscape Mapping"
+    phase3: "Market Gap Identification"
+    phase4: "Strategic Positioning Development"
+    phase5: "Content & Campaign Strategy"
+  
+  # Default prompt template settings
+  prompt_templates:
+    use_jinja2: true
+    template_dir: "templates"
+    context_preservation: true
+  
+  # Output settings
+  output:
+    format: "markdown"
+    timestamp: true
+    backup_outputs: false
+
+# Project Structure Configuration
+project_structure:
+  # Base folder structure
+  folders:
+    - "01_brand_assets"
+    - "02_market_research"
+    - "03_business_intel"
+    - "04_technical_setup"
+    - "05_historical_data"
+    - "06_campaign_structure"
+    - "07_compliance"
+    - "08_reporting"
+  
+  # Claude AI specific folders
+  claude_folders:
+    base: "02_market_research/claude_research"
+    outputs: "02_market_research/claude_research/phase_outputs"
+    insights: "03_business_intel/ai_insights"
+    intelligence: "02_market_research/market_intelligence"
+
+# Workflow Configuration
+workflow:
+  # Timeout settings (in seconds)
+  timeouts:
+    technical_analysis: 60
+    claude_setup: 300
+    competitor_analysis: 900
+    integration: 60
+  
+  # Default settings
+  defaults:
+    skip_competitor_analysis: false
+    generate_integration_summary: true
+    create_workflow_templates: true
+
+# Research Orchestrator Settings
+orchestrator:
+  # Workflow phases
+  phases:
+    - "technical_setup"
+    - "claude_research"
+    - "competitor_analysis"
+    - "integration_summary"
+  
+  # Success thresholds
+  success_threshold: 0.75  # 75% of phases must succeed
+  
+  # Retry settings
+  retry:
+    enabled: false
+    max_attempts: 3
+    delay_seconds: 5
+
+# Business Intelligence Collection
+business_intel:
+  # Required fields for comprehensive analysis
+  required_fields:
+    - "business_name"
+    - "industry"
+    - "description"
+    - "target_audience"
+    - "primary_goal"
+  
+  # Optional but recommended fields
+  recommended_fields:
+    - "website"
+    - "location"
+    - "service_area"
+    - "competitors"
+    - "budget_range"
+    - "unique_value"
+    - "customer_pain_points"
+    - "seasonal_trends"
+  
+  # Field validation
+  validation:
+    min_description_length: 50
+    max_competitors: 10
+    required_competitor_count: 3
+
+# Technical Analysis Configuration
+technical_analysis:
+  # Tools to run
+  tools:
+    verify_tracking: true
+    performance_analysis: true
+  
+  # Analysis parameters
+  parameters:
+    timeout: 60
+    user_agent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
+    max_redirects: 3
+  
+  # Output settings
+  output:
+    save_screenshots: false
+    detailed_logging: true
+    performance_benchmarks: true
+
+# Integration and Reporting
+reporting:
+  # Summary generation
+  generate_executive_summary: true
+  include_implementation_roadmap: true
+  include_competitive_analysis: true
+  
+  # Export formats
+  export_formats:
+    - "markdown"
+    - "json"
+  
+  # Template settings
+  templates:
+    use_custom_templates: true
+    template_directory: "templates"
+
+# Security and Privacy
+security:
+  # Data handling
+  sanitize_input: true
+  log_sensitive_data: false
+  
+  # File permissions
+  default_file_permissions: "644"
+  default_dir_permissions: "755"
+
+# Logging Configuration
+logging:
+  level: "INFO"  # DEBUG, INFO, WARNING, ERROR, CRITICAL
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+  file: "ppc_tools.log"
+  max_size_mb: 10
+  backup_count: 5
+
+# Development Settings
+development:
+  debug_mode: false
+  verbose_output: false
+  save_intermediate_files: false
+  skip_confirmations: false

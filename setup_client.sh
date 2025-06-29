@@ -25,8 +25,8 @@ mkdir -p "$FOLDER_NAME"
 # Create folder structure
 echo "📂 Creating folder structure..."
 mkdir -p "$FOLDER_NAME/01_brand_assets"/{logos,images,videos,existing_ads}
-mkdir -p "$FOLDER_NAME/02_market_research"/{competitor_analysis,keyword_research,audience_insights}
-mkdir -p "$FOLDER_NAME/03_business_intel"
+mkdir -p "$FOLDER_NAME/02_market_research"/{competitor_analysis,keyword_research,audience_insights,claude_research/phase_outputs,market_intelligence}
+mkdir -p "$FOLDER_NAME/03_business_intel/ai_insights"
 mkdir -p "$FOLDER_NAME/04_technical_setup"/{landing_page_analysis,tracking_verification}
 mkdir -p "$FOLDER_NAME/05_historical_data"/{analytics_exports,previous_campaigns,performance_reports}
 mkdir -p "$FOLDER_NAME/06_campaign_structure"/{google_ads,meta_ads,campaign_assets}
@@ -136,6 +136,242 @@ cat > "$FOLDER_NAME/03_business_intel/questionnaire.md" << EOF
 
 Completed By: ________________
 Date: $(date +%Y-%m-%d)
+EOF
+
+# AI-Powered Business Intelligence Template
+cat > "$FOLDER_NAME/03_business_intel/ai_insights/ai_generated_insights.md" << EOF
+# $CLIENT_NAME - AI-Generated Business Insights
+
+## Strategic Analysis Overview
+Generated using Claude AI research methodology
+Date: $(date +%Y-%m-%d)
+
+## Business Intelligence Analysis
+*Paste Phase 1 Claude output here*
+
+### Market Position Assessment
+- Industry landscape analysis
+- Business maturity evaluation
+- Market opportunity size
+- Competitive intensity
+
+### Competitive Advantages
+- Unique differentiators
+- Competitive moats
+- Value proposition strengths
+- Sustainable advantages
+
+### Target Market Analysis
+- Primary audience segments
+- Secondary opportunities
+- Customer journey mapping
+- Pain point prioritization
+
+## Competitive Landscape Mapping
+*Paste Phase 2 Claude output here*
+
+### Direct Competitors
+- Main competitive threats
+- Service offering comparison
+- Market positioning analysis
+- Competitive advantages/weaknesses
+
+### Indirect Competitors
+- Alternative solutions
+- Substitute services
+- Adjacent industry competition
+- DIY/self-service options
+
+## Market Gap Analysis
+*Paste Phase 3 Claude output here*
+
+### Service Gaps
+- Underserved market needs
+- Missing service combinations
+- Quality level opportunities
+- Delivery method gaps
+
+### Geographic Opportunities
+- Underserved locations
+- Competitor weaknesses
+- Expansion potential
+- Local advantages
+
+### Audience Opportunities
+- Underserved segments
+- Demographic gaps
+- Psychographic opportunities
+- Niche targeting potential
+
+## Strategic Positioning
+*Paste Phase 4 Claude output here*
+
+### Core Positioning Statement
+- Primary positioning theme
+- Unique value proposition
+- Competitive differentiation
+- Target audience alignment
+
+### Positioning Pillars
+- Key supporting themes
+- Proof points and evidence
+- Differentiation factors
+- Audience relevance
+
+## Content & Campaign Strategy
+*Paste Phase 5 Claude output here*
+
+### Campaign Architecture
+- Recommended campaign types
+- Budget allocation
+- Platform prioritization
+- Bidding strategies
+
+### Keyword Strategy
+- Primary keyword themes
+- Long-tail opportunities
+- Seasonal variations
+- Negative keywords
+
+### Ad Copy Strategy
+- Headline variations
+- Description themes
+- Call-to-action options
+- Extension strategies
+
+## Implementation Roadmap
+
+### Phase 1 (Weeks 1-2): Foundation
+- [ ] Campaign setup and structure
+- [ ] Initial keyword research and grouping
+- [ ] Ad copy creation and testing
+- [ ] Landing page optimization
+- [ ] Conversion tracking setup
+
+### Phase 2 (Weeks 3-6): Optimization
+- [ ] Performance analysis and optimization
+- [ ] A/B testing implementation
+- [ ] Budget reallocation based on performance
+- [ ] Audience refinement
+- [ ] Competitive response monitoring
+
+### Phase 3 (Weeks 7-12): Scaling
+- [ ] Successful campaign scaling
+- [ ] New keyword expansion
+- [ ] Additional platform testing
+- [ ] Creative refresh and updates
+- [ ] Long-term strategy refinement
+
+## Key Performance Indicators
+- Primary success metrics
+- Leading indicators
+- Lagging indicators
+- Optimization triggers
+
+## Competitive Monitoring
+- Competitor tracking schedule
+- Market change indicators
+- Response strategies
+- Opportunity identification
+
+## Next Steps
+1. Complete Claude AI research phases
+2. Validate insights with market data
+3. Implement campaign recommendations
+4. Monitor and optimize performance
+5. Scale successful strategies
+
+Analysis Completed: $(date +%Y-%m-%d)
+Strategic Implementation: [Target Date]
+EOF
+
+# Claude Research Workflow Template
+cat > "$FOLDER_NAME/02_market_research/claude_research/claude_research_workflow.md" << EOF
+# $CLIENT_NAME - Claude AI Research Workflow
+
+## Research Methodology
+This document outlines the 5-phase Claude AI research process for strategic PPC campaign development.
+
+## Phase Overview
+1. **Business Intelligence Analysis** - Market position and opportunity assessment
+2. **Competitive Landscape Mapping** - Competitive analysis and positioning gaps
+3. **Market Gap Identification** - Opportunity identification and market gaps
+4. **Strategic Positioning Development** - Positioning strategy and differentiation
+5. **Content & Campaign Strategy** - Implementation strategy and tactics
+
+## Execution Instructions
+
+### Step 1: Prepare Claude Session
+- Open Claude AI (claude.ai)
+- Start a new conversation
+- Keep this session open for all 5 phases for context continuity
+
+### Step 2: Execute Research Phases
+Execute the following prompts in order:
+
+#### Phase 1: Business Intelligence Analysis
+- **File**: phase1_business_intelligence_prompt.md
+- **Purpose**: Analyze business position and market opportunities
+- **Output**: Save response as phase_outputs/phase1_business_intelligence.md
+
+#### Phase 2: Competitive Landscape Mapping  
+- **File**: phase2_competitive_landscape_prompt.md
+- **Purpose**: Map competitive landscape and identify positioning gaps
+- **Output**: Save response as phase_outputs/phase2_competitive_landscape.md
+
+#### Phase 3: Market Gap Identification
+- **File**: phase3_market_gaps_prompt.md  
+- **Purpose**: Identify market gaps and exploitation opportunities
+- **Output**: Save response as phase_outputs/phase3_market_gaps.md
+
+#### Phase 4: Strategic Positioning Development
+- **File**: phase4_strategic_positioning_prompt.md
+- **Purpose**: Develop strategic positioning and differentiation strategy
+- **Output**: Save response as phase_outputs/phase4_strategic_positioning.md
+
+#### Phase 5: Content & Campaign Strategy
+- **File**: phase5_content_strategy_prompt.md
+- **Purpose**: Create comprehensive implementation strategy
+- **Output**: Save response as phase_outputs/phase5_content_strategy.md
+
+### Step 3: Compile Strategic Insights
+After completing all phases:
+1. Review all phase outputs
+2. Extract key strategic insights
+3. Create implementation roadmap
+4. Prioritize opportunities and actions
+5. Document in strategic_insights.md
+
+## Quality Checklist
+- [ ] All 5 phases completed in sequence
+- [ ] Claude context maintained throughout
+- [ ] All outputs saved in phase_outputs folder
+- [ ] Key insights extracted and documented
+- [ ] Implementation roadmap created
+- [ ] Stakeholder review completed
+
+## Expected Outcomes
+- Comprehensive market intelligence
+- Competitive positioning strategy
+- Market opportunity identification
+- Strategic campaign framework
+- Implementation roadmap
+
+## Timeline
+- **Research Execution**: 2-3 hours
+- **Analysis and Compilation**: 1-2 hours
+- **Strategy Development**: 2-3 hours
+- **Total Investment**: 5-8 hours
+
+## Success Metrics
+- Strategic clarity and direction
+- Competitive advantage identification
+- Campaign performance improvement
+- ROI optimization opportunities
+- Market positioning strength
+
+Research Initiated: $(date +%Y-%m-%d)
+Expected Completion: [Add target date]
 EOF
 
 # Technical Setup Checklist
@@ -410,8 +646,15 @@ echo "📋 Next Steps:"
 echo "1. cd $FOLDER_NAME"
 echo "2. Fill out the questionnaire: 03_business_intel/questionnaire.md"
 echo "3. Run tracking verification: node ../verify_tracking.js [website_url]"
-echo "4. Complete competitor research using the templates"
-echo "5. Set up campaign structures in Google Ads and Meta"
+echo "4. 🧠 NEW: Run Claude AI research: python3 ../claude_research_setup.py \"$CLIENT_NAME\""
+echo "5. Complete traditional competitor research (optional): python3 ../competitor_research.py \"$CLIENT_NAME\""
+echo "6. Set up campaign structures in Google Ads and Meta"
+echo ""
+echo "🚀 Enhanced AI-Powered Workflow:"
+echo "   - Claude research setup generates 5-phase strategic analysis"
+echo "   - AI-powered business intelligence and competitive analysis"
+echo "   - Strategic positioning and campaign implementation strategy"
 echo ""
 echo "📁 Project location: ./$FOLDER_NAME"
 echo "📖 Read the README.md file for project overview"
+echo "🧠 Claude AI workflow: 02_market_research/claude_research/"

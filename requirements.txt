@@ -1,6 +1,17 @@
-# Python dependencies for PPC client research tools
+# Python dependencies for Enhanced PPC Client Research Tools v2.0
+# Core dependencies (existing)
 requests>=2.25.1
 beautifulsoup4>=4.9.3
 lxml>=4.6.3
 urllib3>=1.26.5
 certifi>=2021.5.25
+
+# New dependencies for Claude AI integration
+click>=8.0.0          # For improved CLI interfaces
+jinja2>=3.0.0         # For prompt templating engine
+pyyaml>=6.0.0         # For configuration management
+rich>=13.0.0          # For enhanced terminal output and UX
+
+# Optional: Development and testing
+# pytest>=7.0.0       # For testing framework
+# black>=22.0.0       # For code formatting

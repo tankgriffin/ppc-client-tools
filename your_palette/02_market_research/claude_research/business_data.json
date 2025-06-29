@@ -1,0 +1,26 @@
+{
+  "business_name": "Your Palette",
+  "industry": "Skincare/Make-up",
+  "website": "https://yourpalette.vercel.app/",
+  "location": "Gold Coast",
+  "service_area": "Australia",
+  "description": "Your Palette is a online ecomm store the provides users with tools and accessories to take their skincare and make-up routines to the next level. Cheaper than all other compeititors and also always available. We provide a blog to help us rank on SEO and provide users with detailed info for popular search queires.",
+  "services": "Products, Knowledge and Expertise",
+  "unique_value": "Cheapness and bringing the Korean trends to Australia",
+  "target_audience": "Young Women interested in makeup and skincare, especially korean trends",
+  "customer_pain_points": "Making their skincare and makeup routines faster and easier",
+  "customer_demographics": "14-30, making above $40,000 per year",
+  "competitors": [
+    "https://lilabeauty.com.au/",
+    "https://nudieglow.com/",
+    "https://kbeautydropzone.com/",
+    "https://boniik.com.au/",
+    "https://kbeautyaustralia.com.au/"
+  ],
+  "primary_goal": "Website Traffic",
+  "budget_range": "$500-$1000",
+  "success_metrics": "10000 users on the website",
+  "seasonal_trends": "None",
+  "current_marketing": "None",
+  "biggest_challenges": "Just launched so no brand awareness and site still developing"
+}
