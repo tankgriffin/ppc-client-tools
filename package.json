@@ -1,0 +1,36 @@
+{
+  "name": "ppc-client-setup-tools",
+  "version": "1.0.0",
+  "description": "Automated tools for PPC client data collection and analysis",
+  "main": "verify_tracking.js",
+  "scripts": {
+    "setup": "chmod +x setup_client.sh",
+    "verify": "node verify_tracking.js",
+    "research": "python3 competitor_research.py",
+    "test": "echo \"No tests specified\" && exit 0"
+  },
+  "keywords": [
+    "ppc",
+    "google-ads",
+    "facebook-ads",
+    "tracking",
+    "competitor-research",
+    "marketing-automation"
+  ],
+  "author": "PPC Agency",
+  "license": "MIT",
+  "dependencies": {},
+  "devDependencies": {},
+  "engines": {
+    "node": ">=14.0.0",
+    "python": ">=3.7.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/your-agency/ppc-client-tools"
+  },
+  "bugs": {
+    "url": "https://github.com/your-agency/ppc-client-tools/issues"
+  },
+  "homepage": "https://github.com/your-agency/ppc-client-tools#readme"
+}

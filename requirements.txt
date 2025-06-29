@@ -1,0 +1,6 @@
+# Python dependencies for PPC client research tools
+requests>=2.25.1
+beautifulsoup4>=4.9.3
+lxml>=4.6.3
+urllib3>=1.26.5
+certifi>=2021.5.25
