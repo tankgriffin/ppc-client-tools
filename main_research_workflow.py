@@ -165,8 +165,7 @@ class MainResearchWorkflow:
             self.print_info("This will ask you interactive questions about the business...")
             
             # Run without capturing output so user can see and respond to prompts
-            result = subprocess.run(['python3', 'claude_research_setup.py', client_name], 
-                                  timeout=600)  # Increased timeout to 10 minutes
+            result = subprocess.run(['python3', 'claude_research_setup.py', client_name])  # No timeout - wait indefinitely
             
             if result.returncode == 0:
                 self.print_success("Claude AI research setup completed")
@@ -211,7 +210,7 @@ class MainResearchWorkflow:
         client_folder = client_name.lower().replace(' ', '_')
         
         if self.console:
-            next_steps_panel = f"""[bold green]🎉 Enhanced Workflow Complete![/bold green]
+            next_steps_panel = f"""[bold green]🎉 Enhanced PPC + SEO Workflow Complete![/bold green]
 
 [bold cyan]📁 Your Research Package:[/bold cyan]
 • Project folder: {client_folder}/
@@ -224,23 +223,26 @@ class MainResearchWorkflow:
 2. Navigate to: {client_folder}/02_market_research/claude_research/
 3. Start with: CLAUDE_RESEARCH_SUMMARY.md
 4. Execute Phase 1 prompt: phase1_business_intelligence_prompt.md
-5. Continue through all 5 phases sequentially
+5. Continue through all 8 phases sequentially (5 PPC + 3 SEO)
 
 [bold magenta]📊 What You'll Get:[/bold magenta]
 • Market position analysis
 • Competitive landscape mapping
 • Strategic positioning strategy
-• Content & campaign implementation plan
+• PPC campaign implementation plan
+• SEO foundation and technical strategy
+• Content marketing and keyword strategy
+• Link building and authority strategy
 • Professional-grade strategic intelligence
 
 [bold blue]⏰ Time Investment:[/bold blue]
-• Claude execution: 2-3 hours
-• Campaign setup: 1-2 hours
-• Expected ROI: 30-40% better performance vs traditional approach"""
+• Claude execution: 3-4 hours (8 phases)
+• Campaign setup: 2-3 hours
+• Expected ROI: 40-50% better performance vs traditional approach"""
             
             self.console.print(Panel(next_steps_panel, title="Success!", style="green"))
         else:
-            print(f"\n🎉 Enhanced Workflow Complete!")
+            print(f"\n🎉 Enhanced PPC + SEO Workflow Complete!")
             print(f"\n📁 Your Research Package:")
             print(f"  • Project folder: {client_folder}/")
             print(f"  • Claude research: {client_folder}/02_market_research/claude_research/")
@@ -251,17 +253,20 @@ class MainResearchWorkflow:
             print(f"  2. Navigate to: {client_folder}/02_market_research/claude_research/")
             print(f"  3. Start with: CLAUDE_RESEARCH_SUMMARY.md")
             print(f"  4. Execute Phase 1 prompt: phase1_business_intelligence_prompt.md")
-            print(f"  5. Continue through all 5 phases sequentially")
+            print(f"  5. Continue through all 8 phases sequentially (5 PPC + 3 SEO)")
             print(f"\n📊 What You'll Get:")
             print(f"  • Market position analysis")
             print(f"  • Competitive landscape mapping") 
             print(f"  • Strategic positioning strategy")
-            print(f"  • Content & campaign implementation plan")
+            print(f"  • PPC campaign implementation plan")
+            print(f"  • SEO foundation and technical strategy")
+            print(f"  • Content marketing and keyword strategy")
+            print(f"  • Link building and authority strategy")
             print(f"  • Professional-grade strategic intelligence")
 
     def run_complete_workflow(self, client_name, website_url=None):
         """Execute the complete enhanced workflow"""
-        self.print_header(f"🚀 Enhanced PPC Research Workflow for {client_name}")
+        self.print_header(f"🚀 Enhanced PPC + SEO Research Workflow for {client_name}")
         
         # Track workflow success
         workflow_results = {
@@ -351,7 +356,7 @@ Examples:
         success = workflow.run_complete_workflow(args.client_name, website_url)
         
         if success:
-            print(f"\n🎯 Enhanced research workflow completed successfully!")
+            print(f"\n🎯 Enhanced PPC + SEO research workflow completed successfully!")
             print(f"📧 Ready for strategic intelligence gathering and campaign implementation")
         else:
             print(f"\n⚠️  Workflow completed with some issues")

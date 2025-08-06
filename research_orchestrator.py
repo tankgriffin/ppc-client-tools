@@ -174,8 +174,8 @@ class ResearchOrchestrator:
             result = subprocess.run(
                 ['python3', 'claude_research_setup.py', self.client_name],
                 capture_output=True,
-                text=True,
-                timeout=300  # 5 minutes timeout
+                text=True
+                # No timeout - wait indefinitely for user input
             )
             
             if result.returncode == 0:

@@ -1,8 +1,8 @@
-PPC Client Setup Guide - Enhanced with Claude AI
+PPC & SEO Client Setup Guide - Enhanced with Claude AI
 Complete step-by-step process for collecting comprehensive client data with AI-powered strategic intelligence
 
 🎯 Overview
-This guide walks you through the enhanced process of setting up a new PPC client using our automated tools plus Claude AI for strategic intelligence gathering. The new workflow replaces manual competitor research with AI-powered analysis.
+This guide walks you through the enhanced process of setting up a new PPC & SEO client using our automated tools plus Claude AI for strategic intelligence gathering. The new workflow replaces manual competitor research with AI-powered analysis.
 
 **Total Time Required**: 10 minutes setup + 2-3 hours Claude execution  
 **Tools Used**: Enhanced automated scripts + Claude AI for strategic analysis  

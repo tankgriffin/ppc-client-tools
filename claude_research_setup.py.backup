@@ -1,0 +1,3020 @@
+#!/usr/bin/env python3
+"""
+Claude AI Research Setup Script
+Replaces manual competitor research with AI-powered strategic intelligence
+Usage: python3 claude_research_setup.py "Client Name"
+"""
+
+import os
+import sys
+import json
+import time
+import re
+from datetime import datetime
+from pathlib import Path
+
+try:
+    import click
+    from jinja2 import Template
+    import yaml
+except ImportError:
+    print("❌ Missing required dependencies. Installing...")
+    import subprocess
+    subprocess.check_call([sys.executable, "-m", "pip", "install", "click", "jinja2", "pyyaml", "rich"])
+    import click
+    from jinja2 import Template
+    import yaml
+
+try:
+    from rich.console import Console
+    from rich.prompt import Prompt, Confirm
+    from rich.table import Table
+    from rich.panel import Panel
+    from rich.progress import Progress, SpinnerColumn, TextColumn
+except ImportError:
+    print("Rich library not available, using basic output")
+    Console = None
+
+class ClaudeResearchSetup:
+    def __init__(self, client_name):
+        self.client_name = client_name
+        self.timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        self.console = Console() if Console else None
+        
+        # Find existing client folder or create sanitized name
+        self.folder_name = self.find_existing_folder(client_name)
+        
+        # Create necessary directories
+        self.setup_directories()
+        
+        # Business intelligence data
+        self.business_data = {}
+        
+        # Generated prompts
+        self.generated_prompts = {}
+
+    def find_existing_folder(self, client_name):
+        """Find existing client folder or return sanitized name"""
+        sanitized = client_name.lower().replace(' ', '_')
+        variations = [sanitized, client_name.replace(' ', '_'), client_name.replace(' ', '-')]
+        
+        for variation in variations:
+            if os.path.exists(variation):
+                self.print_info(f"📁 Found existing folder: {variation}")
+                return variation
+        
+        self.print_info(f"📁 Creating new folder: {sanitized}")
+        return sanitized
+
+    def setup_directories(self):
+        """Create necessary directories for Claude research"""
+        dirs_to_create = [
+            f"{self.folder_name}/02_market_research/claude_research",
+            f"{self.folder_name}/02_market_research/claude_research/phase_outputs",
+            f"{self.folder_name}/02_market_research/market_intelligence",
+            f"{self.folder_name}/03_business_intel/ai_insights",
+            f"{self.folder_name}/templates"
+        ]
+        
+        for dir_path in dirs_to_create:
+            os.makedirs(dir_path, exist_ok=True)
+
+    def print_header(self, text):
+        """Print formatted header"""
+        if self.console:
+            self.console.print(Panel(text, style="bold blue"))
+        else:
+            print(f"\n{'='*70}")
+            print(f"🎯 {text}")
+            print('='*70)
+
+    def print_info(self, text):
+        """Print formatted info"""
+        if self.console:
+            self.console.print(text, style="cyan")
+        else:
+            print(f"💡 {text}")
+
+    def print_success(self, text):
+        """Print formatted success"""
+        if self.console:
+            self.console.print(text, style="green")
+        else:
+            print(f"✅ {text}")
+
+    def print_warning(self, text):
+        """Print formatted warning"""
+        if self.console:
+            self.console.print(text, style="yellow")
+        else:
+            print(f"⚠️  {text}")
+
+    def collect_business_intelligence(self):
+        """Interactive CLI to gather comprehensive business context"""
+        self.print_header(f"Claude AI Research Setup for {self.client_name}")
+        
+        self.print_info("This interactive setup will collect business intelligence and generate customized Claude prompts")
+        self.print_info("Please provide detailed information for the best results\n")
+
+        # Basic Business Information
+        self.print_header("📊 Business Information")
+        
+        if self.console:
+            self.business_data['business_name'] = Prompt.ask("Business Name", default=self.client_name)
+            self.business_data['industry'] = Prompt.ask("Industry/Sector", default="Event Services")
+            self.business_data['website'] = Prompt.ask("Website URL", default="")
+            self.business_data['location'] = Prompt.ask("Primary Location/City", default="")
+            self.business_data['service_area'] = Prompt.ask("Service Area/Region", default="")
+        else:
+            self.business_data['business_name'] = input(f"Business Name [{self.client_name}]: ") or self.client_name
+            self.business_data['industry'] = input("Industry/Sector [Event Services]: ") or "Event Services"
+            self.business_data['website'] = input("Website URL: ")
+            self.business_data['location'] = input("Primary Location/City: ")
+            self.business_data['service_area'] = input("Service Area/Region: ")
+
+        # Detailed Business Description
+        self.print_header("📝 Business Description")
+        self.print_info("Provide a detailed description of the business, services, and what makes it unique")
+        
+        if self.console:
+            self.business_data['description'] = Prompt.ask("Business Description (detailed)")
+            self.business_data['services'] = Prompt.ask("Main Services Offered")
+            self.business_data['unique_value'] = Prompt.ask("What makes this business unique?")
+        else:
+            print("Business Description (detailed):")
+            self.business_data['description'] = input("> ")
+            print("Main Services Offered:")
+            self.business_data['services'] = input("> ")
+            print("What makes this business unique?:")
+            self.business_data['unique_value'] = input("> ")
+
+        # Target Audience
+        self.print_header("🎯 Target Audience")
+        
+        if self.console:
+            self.business_data['target_audience'] = Prompt.ask("Primary Target Audience")
+            self.business_data['customer_pain_points'] = Prompt.ask("Customer Pain Points/Problems Solved")
+            self.business_data['customer_demographics'] = Prompt.ask("Customer Demographics (age, income, etc.)")
+        else:
+            print("Primary Target Audience:")
+            self.business_data['target_audience'] = input("> ")
+            print("Customer Pain Points/Problems Solved:")
+            self.business_data['customer_pain_points'] = input("> ")
+            print("Customer Demographics (age, income, etc.):")
+            self.business_data['customer_demographics'] = input("> ")
+
+        # Competitive Context
+        self.print_header("🏢 Competitive Context")
+        
+        competitors = []
+        self.print_info("Enter competitor information (press Enter on empty line to finish)")
+        
+        while True:
+            if self.console:
+                competitor = Prompt.ask("Competitor Name/Website", default="")
+            else:
+                competitor = input("Competitor Name/Website: ").strip()
+            
+            if not competitor:
+                break
+            competitors.append(competitor)
+        
+        self.business_data['competitors'] = competitors
+
+        # Client Type Selection
+        self.print_header("🎯 Client Type & Services")
+        
+        print("What type of digital marketing services will this client need?")
+        print("1. PPC Only (Google Ads, Meta Ads, etc.)")
+        print("2. SEO Only (Organic search optimization)")
+        print("3. Both PPC and SEO (Integrated approach)")
+        while True:
+            client_type_choice = input("Enter choice (1-3): ").strip()
+            if client_type_choice.isdigit() and 1 <= int(client_type_choice) <= 3:
+                client_types = ["PPC_ONLY", "SEO_ONLY", "BOTH"]
+                self.business_data['client_type'] = client_types[int(client_type_choice)-1]
+                break
+            else:
+                print("Please select a valid option (1-3)")
+
+        # Campaign Objectives
+        self.print_header("📈 Campaign Objectives")
+        
+        # Always use fallback for better compatibility
+        print("Primary Campaign Goal:")
+        print("1. Lead Generation  2. Sales  3. Brand Awareness  4. Website Traffic")
+        while True:
+            goal_choice = input("Enter choice (1-4): ").strip()
+            if goal_choice.isdigit() and 1 <= int(goal_choice) <= 4:
+                goals = ["Lead Generation", "Sales", "Brand Awareness", "Website Traffic"]
+                self.business_data['primary_goal'] = goals[int(goal_choice)-1]
+                break
+            else:
+                print("Please select a valid option (1-4)")
+        
+        print("\nMonthly Budget Range:")
+        print("1. $500-$1000  2. $1000-$2500  3. $2500-$5000  4. $5000+")
+        while True:
+            budget_choice = input("Enter choice (1-4): ").strip()
+            if budget_choice.isdigit() and 1 <= int(budget_choice) <= 4:
+                budgets = ["$500-$1000", "$1000-$2500", "$2500-$5000", "$5000+"]
+                self.business_data['budget_range'] = budgets[int(budget_choice)-1]
+                break
+            else:
+                print("Please select a valid option (1-4)")
+        
+        self.business_data['success_metrics'] = input("Key Success Metrics: ")
+
+        # Additional Context
+        self.print_header("🔍 Additional Context")
+        
+        if self.console:
+            self.business_data['seasonal_trends'] = Prompt.ask("Seasonal Trends/Patterns", default="None")
+            self.business_data['current_marketing'] = Prompt.ask("Current Marketing Channels", default="None")
+            self.business_data['biggest_challenges'] = Prompt.ask("Biggest Business Challenges", default="None")
+        else:
+            self.business_data['seasonal_trends'] = input("Seasonal Trends/Patterns [None]: ") or "None"
+            self.business_data['current_marketing'] = input("Current Marketing Channels [None]: ") or "None"
+            self.business_data['biggest_challenges'] = input("Biggest Business Challenges [None]: ") or "None"
+
+        self.print_success("Business intelligence collection complete!")
+        return self.business_data
+
+    def generate_claude_prompts(self):
+        """Generate customized Claude prompts based on client type"""
+        client_type = self.business_data.get('client_type', 'BOTH')
+        
+        if client_type == 'PPC_ONLY':
+            self.print_header("🧠 Generating PPC-Focused Claude Prompts")
+        elif client_type == 'SEO_ONLY':
+            self.print_header("🧠 Generating SEO-Focused Claude Prompts")
+        else:
+            self.print_header("🧠 Generating Integrated PPC + SEO Claude Prompts")
+        
+        # Define phase templates based on client type
+        client_type = self.business_data.get('client_type', 'BOTH')
+        
+        # PPC-ONLY PHASE TEMPLATES (1-5)
+        if client_type == 'PPC_ONLY':
+            phase1_template = """
+# Phase 1: Business Intelligence Analysis (PPC Focus)
+
+I need you to analyze this business and provide strategic insights for PPC campaign development.
+
+## Business Context:
+- **Business Name**: {{business_name}}
+- **Industry**: {{industry}}
+- **Location**: {{location}} (Service Area: {{service_area}})
+- **Website**: {{website}}
+
+## Business Description:
+{{description}}
+
+## Services Offered:
+{{services}}
+
+## Unique Value Proposition:
+{{unique_value}}
+
+## Target Audience:
+{{target_audience}}
+
+## Customer Pain Points:
+{{customer_pain_points}}
+
+## Customer Demographics:
+{{customer_demographics}}
+
+## Current Marketing:
+{{current_marketing}}
+
+## Campaign Objectives:
+- Primary Goal: {{primary_goal}}
+- Budget Range: {{budget_range}}
+- Success Metrics: {{success_metrics}}
+
+## Seasonal Considerations:
+{{seasonal_trends}}
+
+## Biggest Challenges:
+{{biggest_challenges}}
+
+## Analysis Required:
+
+Please provide a comprehensive business intelligence analysis including:
+
+1. **Market Position Assessment**
+   - Industry landscape analysis
+   - Business maturity and growth potential
+   - Market opportunity size for paid advertising
+
+2. **Competitive Advantages**
+   - Unique differentiators for PPC messaging
+   - Competitive moats that can be leveraged in ads
+   - Value proposition strengths for ad copy
+
+3. **Target Market Analysis**
+   - Primary audience segments for PPC targeting
+   - Secondary audience opportunities for expansion
+   - Customer journey mapping for PPC touchpoints
+
+4. **PPC Campaign Strategy Foundation**
+   - Recommended campaign types (Search, Display, Video, Shopping)
+   - Budget allocation suggestions across platforms
+   - Priority targeting strategies and audience segments
+
+5. **Growth Opportunities**
+   - Untapped market segments for PPC expansion
+   - Service expansion possibilities through paid ads
+   - Geographic expansion potential via PPC
+
+6. **Risk Assessment**
+   - Potential PPC challenges and mitigation strategies
+   - Competitive threats in paid advertising
+   - Market risks affecting PPC performance
+
+Please provide actionable insights that will inform our PPC strategy development.
+"""
+
+            phase2_template = """
+# Phase 2: Competitive Landscape Analysis (PPC Focus)
+
+Based on the business intelligence from Phase 1, I need you to analyze the competitive landscape specifically for PPC campaign planning.
+
+## Business Context (from Phase 1):
+- **Business**: {{business_name}} - {{description}}
+- **Industry**: {{industry}}
+- **Location**: {{location}}
+- **Services**: {{services}}
+- **Unique Value**: {{unique_value}}
+
+## Known Competitors:
+{% for competitor in competitors %}
+- {{competitor}}
+{% endfor %}
+
+## Competitive Analysis Required:
+
+Please provide a comprehensive competitive landscape analysis including:
+
+1. **Direct Competitor PPC Analysis**
+   - Who are the main direct competitors in paid advertising?
+   - What PPC platforms are they using (Google Ads, Meta, LinkedIn)?
+   - What are their likely ad spend levels and campaign strategies?
+
+2. **Indirect Competitor Analysis**
+   - Who are the indirect competitors bidding on similar keywords?
+   - What adjacent services compete for the same paid traffic?
+   - What alternative solutions advertise to the same audience?
+
+3. **Competitive Ad Messaging Analysis**
+   - What are the main messaging themes competitors use in ads?
+   - What value propositions are they emphasizing?
+   - What calls-to-action are most common in their ads?
+
+4. **Keyword Competition Assessment**
+   - What keywords are competitors likely targeting?
+   - What is the estimated competition level for priority keywords?
+   - Where are the keyword gaps and opportunities?
+
+5. **Ad Creative and Landing Page Analysis**
+   - What types of ad creatives are competitors using?
+   - What landing page strategies are they employing?
+   - What offers and promotions are they running?
+
+6. **Market Share and Positioning**
+   - Who are the dominant players in PPC for this industry?
+   - What positioning strategies are most successful?
+   - Where are the gaps in competitive coverage?
+
+7. **Competitive Threat Assessment**
+   - Which competitors pose the biggest threat in PPC?
+   - What are their strengths and weaknesses in paid advertising?
+   - How can we differentiate and compete effectively?
+
+Please provide specific, actionable insights for PPC campaign development and competitive positioning.
+"""
+
+            phase3_template = """
+# Phase 3: Market Gap Analysis (PPC Focus)
+
+Building on the business intelligence and competitive analysis, I need you to identify specific market gaps and PPC opportunities.
+
+## Business Context:
+- **Business**: {{business_name}}
+- **Industry**: {{industry}}
+- **Services**: {{services}}
+- **Target Audience**: {{target_audience}}
+- **Unique Value**: {{unique_value}}
+- **Primary Goal**: {{primary_goal}}
+
+## Market Gap Analysis Required:
+
+Please identify and analyze market gaps and PPC opportunities including:
+
+1. **Keyword Gaps**
+   - What high-value keywords are underutilized by competitors?
+   - What long-tail keyword opportunities exist?
+   - What seasonal keyword gaps can be exploited?
+
+2. **Audience Gaps**
+   - What customer segments are competitors not targeting effectively?
+   - What demographics are underserved in paid advertising?
+   - What behavioral targeting opportunities are being missed?
+
+3. **Geographic Gaps**
+   - What geographic areas have lower PPC competition?
+   - Where are competitors weak or absent in paid advertising?
+   - What location-based PPC opportunities exist?
+
+4. **Platform Gaps**
+   - What advertising platforms are underutilized in this industry?
+   - Where are competitors not advertising that we should?
+   - What emerging ad platforms present opportunities?
+
+5. **Ad Format Gaps**
+   - What ad formats are competitors not using effectively?
+   - What creative approaches are missing from the market?
+   - What interactive or video ad opportunities exist?
+
+6. **Timing Gaps**
+   - What time-based targeting opportunities are competitors missing?
+   - What seasonal PPC opportunities are underexploited?
+   - What dayparting strategies could give us an advantage?
+
+7. **Messaging Gaps**
+   - What value propositions are competitors not emphasizing?
+   - What emotional triggers are being missed in ad copy?
+   - What unique selling points are underexplored?
+
+8. **Landing Page Gaps**
+   - What landing page experiences are competitors not providing?
+   - What conversion optimization opportunities exist?
+   - What user experience improvements could differentiate us?
+
+For each gap identified, please provide:
+- Specific opportunity description
+- Estimated traffic/conversion potential
+- Implementation difficulty and resource requirements
+- Competitive advantage potential
+- Recommended PPC campaign approach
+
+Focus on gaps that can be immediately exploited through strategic PPC campaigns.
+"""
+
+            phase4_template = """
+# Phase 4: Strategic Positioning for PPC
+
+Based on the previous analysis, I need you to develop a comprehensive strategic positioning strategy specifically for PPC campaigns.
+
+## Business Context:
+- **Business**: {{business_name}}
+- **Industry**: {{industry}}
+- **Services**: {{services}}
+- **Target Audience**: {{target_audience}}
+- **Unique Value**: {{unique_value}}
+- **Budget Range**: {{budget_range}}
+- **Primary Goal**: {{primary_goal}}
+
+## Strategic Positioning Development Required:
+
+Please develop a comprehensive PPC positioning strategy including:
+
+1. **Core PPC Positioning Statement**
+   - Primary positioning theme for all PPC campaigns
+   - Unique value proposition for ad messaging
+   - Competitive differentiation for paid advertising
+   - Target audience alignment for PPC
+
+2. **Campaign-Specific Positioning**
+   - Search campaign positioning strategy
+   - Display campaign positioning approach
+   - Video campaign positioning themes
+   - Shopping campaign positioning (if applicable)
+
+3. **Platform-Specific Positioning**
+   - Google Ads positioning strategy
+   - Meta/Facebook Ads positioning approach
+   - LinkedIn Ads positioning (if applicable)
+   - Other platform positioning adaptations
+
+4. **Audience-Specific Positioning**
+   - Primary audience positioning messages
+   - Secondary audience positioning variations
+   - Demographic-specific positioning approaches
+   - Behavioral targeting positioning themes
+
+5. **Competitive Positioning**
+   - How to position against main competitors in ads
+   - Defensive positioning for competitive attacks
+   - Offensive positioning for market expansion
+   - Price positioning strategy for PPC
+
+6. **Ad Copy Positioning Framework**
+   - Headline positioning strategies
+   - Description positioning approaches
+   - Call-to-action positioning themes
+   - Ad extension positioning opportunities
+
+7. **Landing Page Positioning**
+   - Landing page positioning consistency
+   - Conversion-focused positioning strategies
+   - User experience positioning elements
+   - Trust and credibility positioning
+
+8. **Seasonal Positioning**
+   - Year-round positioning themes
+   - Seasonal positioning variations
+   - Holiday positioning strategies
+   - Event-driven positioning opportunities
+
+9. **Budget-Based Positioning**
+   - High-budget positioning strategies
+   - Limited-budget positioning approaches
+   - ROI-focused positioning themes
+   - Scaling positioning considerations
+
+Please provide specific, actionable positioning strategies that can be immediately implemented in PPC campaigns to maximize performance and competitive advantage.
+"""
+
+            phase5_template = """
+# Phase 5: PPC Campaign Implementation Strategy
+
+Based on all previous analysis, I need you to develop comprehensive PPC campaign implementation strategies.
+
+## Business Context:
+- **Business**: {{business_name}}
+- **Industry**: {{industry}}
+- **Services**: {{services}}
+- **Target Audience**: {{target_audience}}
+- **Budget Range**: {{budget_range}}
+- **Primary Goal**: {{primary_goal}}
+
+## PPC Campaign Implementation Strategy Required:
+
+Please develop comprehensive implementation strategies including:
+
+1. **Campaign Architecture**
+   - Recommended campaign structure and organization
+   - Campaign types (Search, Display, Video, Shopping, Performance Max)
+   - Budget allocation across campaigns and platforms
+   - Bidding strategy recommendations
+
+2. **Keyword Strategy**
+   - Primary keyword targets with search volumes
+   - Secondary keyword opportunities
+   - Long-tail keyword strategies
+   - Negative keyword recommendations
+   - Seasonal keyword variations
+
+3. **Ad Copy Strategy**
+   - Headline themes and variations (3-5 options per theme)
+   - Description themes and variations
+   - Call-to-action recommendations
+   - Ad extension strategies (sitelinks, callouts, structured snippets)
+   - Emotional vs. rational messaging balance
+
+4. **Targeting Strategy**
+   - Demographics targeting recommendations
+   - Geographic targeting strategies
+   - Device targeting optimizations
+   - Dayparting recommendations
+   - Audience targeting (custom, lookalike, in-market)
+
+5. **Landing Page Strategy**
+   - Landing page requirements and recommendations
+   - Conversion optimization strategies
+   - A/B testing opportunities
+   - User experience improvements
+   - Mobile optimization priorities
+
+6. **Budget Management**
+   - Daily budget recommendations
+   - Budget allocation across campaigns
+   - Seasonal budget adjustments
+   - Scaling strategies
+   - ROI optimization approaches
+
+7. **Performance Tracking**
+   - Key performance indicators (KPIs)
+   - Conversion tracking setup
+   - Attribution modeling recommendations
+   - Reporting framework
+   - Optimization metrics
+
+8. **Launch Strategy**
+   - Phase 1 launch plan (first 30 days)
+   - Phase 2 optimization (days 31-90)
+   - Phase 3 scaling (days 91-180)
+   - Testing timeline and priorities
+   - Success benchmarks
+
+9. **Optimization Framework**
+   - Weekly optimization tasks
+   - Monthly performance reviews
+   - Quarterly strategy adjustments
+   - Continuous improvement processes
+   - Competitive monitoring
+
+10. **Risk Management**
+    - Common PPC pitfalls to avoid
+    - Budget protection strategies
+    - Quality score optimization
+    - Compliance considerations
+    - Crisis management protocols
+
+Please provide specific, actionable strategies that can be immediately implemented for PPC campaign launch and management.
+"""
+
+        # SEO-ONLY PHASE TEMPLATES (1-6)
+        elif client_type == 'SEO_ONLY':
+            phase1_template = """
+# Phase 1: Business Intelligence Analysis (SEO Focus)
+
+I need you to analyze this business and provide strategic insights for SEO strategy development.
+
+## Business Context:
+- **Business Name**: {{business_name}}
+- **Industry**: {{industry}}
+- **Location**: {{location}} (Service Area: {{service_area}})
+- **Website**: {{website}}
+
+## Business Description:
+{{description}}
+
+## Services Offered:
+{{services}}
+
+## Unique Value Proposition:
+{{unique_value}}
+
+## Target Audience:
+{{target_audience}}
+
+## Customer Pain Points:
+{{customer_pain_points}}
+
+## Customer Demographics:
+{{customer_demographics}}
+
+## Current Marketing:
+{{current_marketing}}
+
+## Campaign Objectives:
+- Primary Goal: {{primary_goal}}
+- Budget Range: {{budget_range}}
+- Success Metrics: {{success_metrics}}
+
+## Seasonal Considerations:
+{{seasonal_trends}}
+
+## Biggest Challenges:
+{{biggest_challenges}}
+
+## Analysis Required:
+
+Please provide a comprehensive business intelligence analysis including:
+
+1. **Market Position Assessment**
+   - Industry landscape analysis for organic search
+   - Business maturity and SEO potential
+   - Market opportunity size for organic traffic
+
+2. **Competitive Advantages**
+   - Unique differentiators for SEO content
+   - Competitive moats for organic search
+   - Value proposition strengths for content marketing
+
+3. **Target Market Analysis**
+   - Primary audience segments for SEO targeting
+   - Secondary audience opportunities for content expansion
+   - Customer journey mapping for organic touchpoints
+
+4. **SEO Strategy Foundation**
+   - Content marketing opportunities
+   - Technical SEO priorities
+   - Local SEO potential (if applicable)
+
+5. **Growth Opportunities**
+   - Untapped market segments for organic expansion
+   - Service expansion possibilities through SEO
+   - Geographic expansion potential via local SEO
+
+6. **Risk Assessment**
+   - Potential SEO challenges and mitigation strategies
+   - Competitive threats in organic search
+   - Algorithm risks and diversification strategies
+
+Please provide actionable insights that will inform our SEO strategy development.
+"""
+
+            phase2_template = """
+# Phase 2: Competitive SEO Landscape Analysis
+
+Based on the business intelligence from Phase 1, I need you to analyze the competitive landscape specifically for SEO strategy planning.
+
+## Business Context (from Phase 1):
+- **Business**: {{business_name}} - {{description}}
+- **Industry**: {{industry}}
+- **Location**: {{location}}
+- **Services**: {{services}}
+- **Unique Value**: {{unique_value}}
+
+## Known Competitors:
+{% for competitor in competitors %}
+- {{competitor}}
+{% endfor %}
+
+## Competitive SEO Analysis Required:
+
+Please provide a comprehensive competitive SEO landscape analysis including:
+
+1. **Direct Competitor SEO Analysis**
+   - Who are the main direct competitors in organic search?
+   - What are their current organic search rankings?
+   - What SEO strategies are they employing?
+
+2. **Indirect Competitor Analysis**
+   - Who are the indirect competitors ranking for similar keywords?
+   - What adjacent services compete for the same organic traffic?
+   - What alternative solutions rank well for our target keywords?
+
+3. **Competitive Content Analysis**
+   - What types of content are competitors creating?
+   - What content gaps exist in the market?
+   - What content formats are performing well for competitors?
+
+4. **Keyword Competition Assessment**
+   - What keywords are competitors ranking for?
+   - What is the keyword difficulty for priority terms?
+   - Where are the keyword opportunities and gaps?
+
+5. **Technical SEO Analysis**
+   - What technical SEO strengths do competitors have?
+   - What technical weaknesses can we exploit?
+   - What site structure advantages do competitors possess?
+
+6. **Backlink Profile Analysis**
+   - What link building strategies are competitors using?
+   - What high-quality backlinks do they have?
+   - Where are the link building opportunities?
+
+7. **Local SEO Competition (if applicable)**
+   - Who are the local competitors in organic search?
+   - What local SEO strategies are they using?
+   - Where are the local search opportunities?
+
+8. **Content Marketing Analysis**
+   - What content marketing strategies are competitors using?
+   - What topics are they covering extensively?
+   - What content opportunities are they missing?
+
+Please provide specific, actionable insights for SEO strategy development and competitive positioning.
+"""
+
+            phase3_template = """
+# Phase 3: SEO Market Gap Analysis
+
+Building on the business intelligence and competitive analysis, I need you to identify specific market gaps and SEO opportunities.
+
+## Business Context:
+- **Business**: {{business_name}}
+- **Industry**: {{industry}}
+- **Services**: {{services}}
+- **Target Audience**: {{target_audience}}
+- **Unique Value**: {{unique_value}}
+- **Primary Goal**: {{primary_goal}}
+
+## SEO Market Gap Analysis Required:
+
+Please identify and analyze market gaps and SEO opportunities including:
+
+1. **Keyword Gaps**
+   - What high-value keywords are underutilized by competitors?
+   - What long-tail keyword opportunities exist?
+   - What seasonal keyword gaps can be exploited?
+   - What voice search opportunities are being missed?
+
+2. **Content Gaps**
+   - What content topics are competitors not covering?
+   - What content formats are underutilized?
+   - What buyer journey stages lack quality content?
+   - What user-generated content opportunities exist?
+
+3. **Technical SEO Gaps**
+   - What technical optimizations are competitors missing?
+   - What site speed advantages can we gain?
+   - What mobile optimization opportunities exist?
+   - What schema markup opportunities are available?
+
+4. **Local SEO Gaps (if applicable)**
+   - What local search opportunities are competitors missing?
+   - What local citation opportunities exist?
+   - What local content gaps can be filled?
+   - What Google Business Profile optimization opportunities exist?
+
+5. **Link Building Gaps**
+   - What link building opportunities are competitors missing?
+   - What high-quality link prospects are available?
+   - What content-driven link earning opportunities exist?
+   - What partnership link opportunities are available?
+
+6. **User Experience Gaps**
+   - What UX improvements could boost SEO performance?
+   - What site architecture improvements are needed?
+   - What page experience optimizations are missing?
+   - What accessibility improvements could help?
+
+7. **Seasonal/Trending Gaps**
+   - What seasonal SEO opportunities are underexploited?
+   - What trending topics can we capitalize on?
+   - What industry event opportunities exist?
+   - What news-driven content opportunities are available?
+
+8. **Geographic Gaps**
+   - What geographic areas have lower organic competition?
+   - Where are competitors weak in local search?
+   - What location-based content opportunities exist?
+
+For each gap identified, please provide:
+- Specific opportunity description
+- Estimated organic traffic potential
+- Implementation difficulty and resource requirements
+- Competitive advantage potential
+- Recommended SEO approach
+
+Focus on gaps that can be exploited through strategic SEO initiatives.
+"""
+
+            phase4_template = """
+# Phase 4: Strategic SEO Positioning
+
+Based on the previous analysis, I need you to develop a comprehensive strategic positioning strategy specifically for SEO.
+
+## Business Context:
+- **Business**: {{business_name}}
+- **Industry**: {{industry}}
+- **Services**: {{services}}
+- **Target Audience**: {{target_audience}}
+- **Unique Value**: {{unique_value}}
+- **Budget Range**: {{budget_range}}
+- **Primary Goal**: {{primary_goal}}
+
+## Strategic SEO Positioning Development Required:
+
+Please develop a comprehensive SEO positioning strategy including:
+
+1. **Core SEO Positioning Statement**
+   - Primary positioning theme for all SEO efforts
+   - Unique value proposition for content marketing
+   - Competitive differentiation for organic search
+   - Target audience alignment for SEO
+
+2. **Content Positioning Strategy**
+   - Blog content positioning themes
+   - Service page positioning approaches
+   - Resource content positioning
+   - Educational content positioning
+
+3. **Keyword Positioning Strategy**
+   - Primary keyword positioning themes
+   - Long-tail keyword positioning approaches
+   - Branded keyword positioning
+   - Competitive keyword positioning
+
+4. **Local SEO Positioning (if applicable)**
+   - Local search positioning strategy
+   - Geographic positioning themes
+   - Community positioning approaches
+   - Local expertise positioning
+
+5. **Authority Positioning**
+   - Industry expertise positioning
+   - Thought leadership positioning
+   - Trust and credibility positioning
+   - E-A-T positioning strategy
+
+6. **Technical SEO Positioning**
+   - Site architecture positioning
+   - Page speed positioning advantages
+   - Mobile-first positioning
+   - User experience positioning
+
+7. **Link Building Positioning**
+   - Linkable asset positioning
+   - Partnership positioning
+   - Industry relationship positioning
+   - Content promotion positioning
+
+8. **Seasonal Positioning**
+   - Year-round positioning themes
+   - Seasonal content positioning
+   - Holiday positioning strategies
+   - Event-driven positioning
+
+9. **Content Marketing Positioning**
+   - Educational positioning
+   - Problem-solving positioning
+   - Industry insight positioning
+   - Customer success positioning
+
+Please provide specific, actionable positioning strategies that can be immediately implemented in SEO efforts to maximize organic visibility and competitive advantage.
+"""
+
+            phase5_template = """
+# Phase 5: SEO Technical Foundation Strategy
+
+Based on all previous analysis, I need you to develop a comprehensive technical SEO foundation strategy.
+
+## Business Context:
+- **Business**: {{business_name}}
+- **Industry**: {{industry}}
+- **Website**: {{website}}
+- **Services**: {{services}}
+- **Target Audience**: {{target_audience}}
+- **Location**: {{location}} (Service Area: {{service_area}})
+
+## Technical SEO Foundation Strategy Required:
+
+Please develop comprehensive technical SEO strategies including:
+
+1. **Site Architecture & Structure**
+   - URL structure optimization
+   - Site navigation improvements
+   - Internal linking strategy
+   - Breadcrumb implementation
+   - Site hierarchy optimization
+
+2. **Page Speed & Core Web Vitals**
+   - Page speed optimization priorities
+   - Core Web Vitals improvements
+   - Image optimization strategies
+   - Code optimization recommendations
+   - CDN implementation strategies
+
+3. **Mobile Optimization**
+   - Mobile-first design principles
+   - Responsive design improvements
+   - Mobile usability enhancements
+   - AMP implementation considerations
+   - Mobile page speed optimization
+
+4. **Technical SEO Fundamentals**
+   - Meta tag optimization
+   - Header tag structure
+   - Schema markup implementation
+   - XML sitemap optimization
+   - Robots.txt optimization
+
+5. **Indexing & Crawling**
+   - Crawlability improvements
+   - Indexing optimization
+   - Duplicate content resolution
+   - Canonical tag implementation
+   - Redirect strategy
+
+6. **Local SEO Technical Setup (if applicable)**
+   - Google Business Profile optimization
+   - Local schema markup
+   - NAP consistency
+   - Local landing page optimization
+   - Location-based technical setup
+
+7. **Security & HTTPS**
+   - SSL certificate implementation
+   - Security header optimization
+   - HTTPS migration strategy
+   - Security monitoring setup
+
+8. **Analytics & Tracking**
+   - Google Analytics setup
+   - Google Search Console optimization
+   - Conversion tracking implementation
+   - Custom tracking setup
+   - Reporting framework
+
+9. **Performance Monitoring**
+   - Technical SEO monitoring tools
+   - Performance tracking metrics
+   - Error monitoring setup
+   - Regular audit procedures
+   - Issue resolution protocols
+
+10. **Implementation Roadmap**
+    - Priority 1: Critical technical fixes
+    - Priority 2: Performance optimizations
+    - Priority 3: Enhanced features
+    - Implementation timeline
+    - Resource requirements
+
+Please provide specific, actionable technical SEO strategies that can be immediately implemented to establish a strong foundation for organic search success.
+"""
+
+            phase6_template = """
+# Phase 6: SEO Content Strategy & Implementation
+
+Based on all previous analysis, I need you to develop a comprehensive SEO content strategy and implementation plan.
+
+## Business Context:
+- **Business**: {{business_name}}
+- **Industry**: {{industry}}
+- **Services**: {{services}}
+- **Target Audience**: {{target_audience}}
+- **Location**: {{location}}
+- **Competitors**: {{competitors}}
+
+## SEO Content Strategy & Implementation Required:
+
+Please develop comprehensive content strategies including:
+
+1. **Content Strategy Framework**
+   - Content marketing objectives
+   - Content pillar development
+   - Content cluster strategies
+   - Topic authority building
+   - Content differentiation approach
+
+2. **Keyword Research & Strategy**
+   - Primary keyword targets (high-volume, high-intent)
+   - Secondary keyword opportunities
+   - Long-tail keyword strategy
+   - Local keyword variations (if applicable)
+   - Seasonal keyword patterns
+   - Voice search optimization keywords
+
+3. **Content Types & Formats**
+   - Blog post strategy and calendar
+   - Service page optimization
+   - Resource and tool creation
+   - Video content opportunities
+   - Infographic and visual content
+   - Interactive content possibilities
+
+4. **Content Calendar & Production**
+   - Monthly content themes
+   - Weekly publishing schedule
+   - Seasonal content planning
+   - Event-driven content opportunities
+   - Content refresh and update strategy
+
+5. **Content Optimization Strategy**
+   - On-page SEO optimization
+   - Featured snippet targeting
+   - People Also Ask optimization
+   - Local content optimization (if applicable)
+   - E-A-T building through content
+
+6. **Content Distribution & Promotion**
+   - Social media content adaptation
+   - Email newsletter integration
+   - Third-party publication opportunities
+   - Content syndication strategy
+   - Community engagement approach
+
+7. **Content Performance Measurement**
+   - Organic traffic growth metrics
+   - Keyword ranking improvements
+   - Content engagement metrics
+   - Lead generation from content
+   - Social sharing and backlink acquisition
+
+8. **Content Gap Analysis Implementation**
+   - Competitor content analysis
+   - Missing content opportunities
+   - Content format gaps
+   - Seasonal content needs
+   - Industry trend content opportunities
+
+9. **Content Resource Planning**
+   - Content creation resource needs
+   - Content management workflow
+   - Content optimization process
+   - Content promotion strategy
+   - Content performance review cycles
+
+10. **Content Success Metrics**
+    - Organic traffic growth targets
+    - Keyword ranking improvements
+    - Content engagement benchmarks
+    - Lead generation goals
+    - Brand awareness metrics
+
+Please provide specific, actionable content strategies that will drive organic growth and establish market authority through strategic SEO content marketing.
+"""
+
+        # INTEGRATED PPC + SEO PHASE TEMPLATES (1-8)
+        else:  # BOTH
+            phase1_template = """
+# Phase 1: Business Intelligence Analysis (Integrated PPC + SEO)
+
+I need you to analyze this business and provide strategic insights for integrated PPC and SEO strategy development.
+
+## Business Context:
+- **Business Name**: {{business_name}}
+- **Industry**: {{industry}}
+- **Location**: {{location}} (Service Area: {{service_area}})
+- **Website**: {{website}}
+
+## Business Description:
+{{description}}
+
+## Services Offered:
+{{services}}
+
+## Unique Value Proposition:
+{{unique_value}}
+
+## Target Audience:
+{{target_audience}}
+
+## Customer Pain Points:
+{{customer_pain_points}}
+
+## Customer Demographics:
+{{customer_demographics}}
+
+## Current Marketing:
+{{current_marketing}}
+
+## Campaign Objectives:
+- Primary Goal: {{primary_goal}}
+- Budget Range: {{budget_range}}
+- Success Metrics: {{success_metrics}}
+
+## Seasonal Considerations:
+{{seasonal_trends}}
+
+## Biggest Challenges:
+{{biggest_challenges}}
+
+## Analysis Required:
+
+Please provide a comprehensive business intelligence analysis including:
+
+1. **Market Position Assessment**
+   - Industry landscape analysis
+   - Business maturity and growth potential
+   - Market opportunity size for both paid and organic channels
+
+2. **Competitive Advantages**
+   - Unique differentiators for marketing messaging
+   - Competitive moats that can be leveraged across channels
+   - Value proposition strengths for both PPC and SEO
+
+3. **Target Market Analysis**
+   - Primary audience segments for integrated targeting
+   - Secondary audience opportunities for expansion
+   - Customer journey mapping for multiple touchpoints
+
+4. **Integrated Marketing Strategy Foundation**
+   - PPC campaign priorities and opportunities
+   - SEO content marketing potential
+   - Cross-channel synergy opportunities
+
+5. **Growth Opportunities**
+   - Untapped market segments for integrated expansion
+   - Service expansion possibilities through multi-channel approach
+   - Geographic expansion potential via PPC and SEO
+
+6. **Risk Assessment**
+   - Potential challenges across both channels
+   - Competitive threats in paid and organic search
+   - Market risks affecting overall performance
+
+7. **Channel Integration Opportunities**
+   - Keyword data sharing between PPC and SEO
+   - Content that supports both channels
+   - Unified messaging strategies
+   - Cross-channel performance optimization
+
+Please provide actionable insights that will inform our integrated PPC and SEO strategy development.
+"""
+
+            phase2_template = """
+# Phase 2: Integrated Competitive Landscape Analysis
+
+Based on the business intelligence from Phase 1, I need you to analyze the competitive landscape for both PPC and SEO strategy planning.
+
+## Business Context (from Phase 1):
+- **Business**: {{business_name}} - {{description}}
+- **Industry**: {{industry}}
+- **Location**: {{location}}
+- **Services**: {{services}}
+- **Unique Value**: {{unique_value}}
+
+## Known Competitors:
+{% for competitor in competitors %}
+- {{competitor}}
+{% endfor %}
+
+## Integrated Competitive Analysis Required:
+
+Please provide a comprehensive competitive landscape analysis including:
+
+1. **Direct Competitor Analysis (PPC & SEO)**
+   - Who are the main direct competitors in both paid and organic search?
+   - What integrated strategies are they using?
+   - What are their strengths and weaknesses across both channels?
+
+2. **PPC Competitive Analysis**
+   - What PPC platforms are competitors using?
+   - What are their likely ad spend levels and strategies?
+   - What messaging themes are they using in ads?
+
+3. **SEO Competitive Analysis**
+   - What organic search rankings do competitors have?
+   - What content strategies are they employing?
+   - What technical SEO advantages do they possess?
+
+4. **Keyword Competition Assessment**
+   - What keywords are competitors targeting in both PPC and SEO?
+   - Where are the keyword gaps and opportunities?
+   - What keyword overlap exists between channels?
+
+5. **Content and Creative Analysis**
+   - What content strategies are competitors using?
+   - What ad creatives and landing pages are they running?
+   - What content gaps exist in the market?
+
+6. **Market Share and Positioning**
+   - Who are the dominant players across both channels?
+   - What positioning strategies are most successful?
+   - Where are the integrated opportunities?
+
+7. **Cross-Channel Strategy Analysis**
+   - Are competitors using integrated PPC/SEO strategies?
+   - What synergies are they leveraging?
+   - What integration opportunities are they missing?
+
+8. **Competitive Threat Assessment**
+   - Which competitors pose the biggest threat overall?
+   - What are their integrated marketing strengths?
+   - How can we compete effectively across both channels?
+
+Please provide specific, actionable insights for integrated PPC and SEO strategy development.
+"""
+
+            phase3_template = """
+# Phase 3: Integrated Market Gap Analysis
+
+Building on the business intelligence and competitive analysis, I need you to identify specific market gaps and opportunities for integrated PPC and SEO strategies.
+
+## Business Context:
+- **Business**: {{business_name}}
+- **Industry**: {{industry}}
+- **Services**: {{services}}
+- **Target Audience**: {{target_audience}}
+- **Unique Value**: {{unique_value}}
+- **Primary Goal**: {{primary_goal}}
+
+## Integrated Market Gap Analysis Required:
+
+Please identify and analyze market gaps and opportunities including:
+
+1. **Keyword Gaps (PPC & SEO)**
+   - What high-value keywords are underutilized in both channels?
+   - What long-tail opportunities exist for integrated targeting?
+   - What seasonal keyword gaps can be exploited?
+
+2. **Content Gaps**
+   - What content topics are competitors not covering?
+   - What content can serve both PPC landing pages and SEO?
+   - What content formats are underutilized?
+
+3. **Audience Gaps**
+   - What customer segments are underserved across both channels?
+   - What demographics are missing from integrated targeting?
+   - What behavioral patterns are not being leveraged?
+
+4. **Geographic Gaps**
+   - What locations have lower competition in both channels?
+   - Where are integrated local opportunities?
+   - What location-based strategies are being missed?
+
+5. **Platform and Channel Gaps**
+   - What advertising platforms are underutilized?
+   - What SEO opportunities are competitors missing?
+   - What cross-channel integration gaps exist?
+
+6. **Timing and Seasonal Gaps**
+   - What seasonal opportunities work for both channels?
+   - What event-driven marketing gaps exist?
+   - What timing strategies are underexploited?
+
+7. **Messaging and Positioning Gaps**
+   - What value propositions are underemphasized?
+   - What emotional triggers are being missed?
+   - What positioning themes could work across channels?
+
+8. **Technical and User Experience Gaps**
+   - What technical improvements could benefit both channels?
+   - What user experience gaps exist?
+   - What conversion optimization opportunities are available?
+
+For each gap identified, please provide:
+- Specific opportunity description
+- Potential impact on both PPC and SEO
+- Implementation difficulty and resource requirements
+- Competitive advantage potential
+- Recommended integrated approach
+
+Focus on gaps that can be exploited through coordinated PPC and SEO strategies.
+"""
+
+            phase4_template = """
+# Phase 4: Integrated Strategic Positioning
+
+Based on the previous analysis, I need you to develop a comprehensive strategic positioning strategy for integrated PPC and SEO campaigns.
+
+## Business Context:
+- **Business**: {{business_name}}
+- **Industry**: {{industry}}
+- **Services**: {{services}}
+- **Target Audience**: {{target_audience}}
+- **Unique Value**: {{unique_value}}
+- **Budget Range**: {{budget_range}}
+- **Primary Goal**: {{primary_goal}}
+
+## Integrated Strategic Positioning Development Required:
+
+Please develop a comprehensive positioning strategy including:
+
+1. **Core Integrated Positioning Statement**
+   - Primary positioning theme for all marketing efforts
+   - Unique value proposition for both PPC and SEO
+   - Competitive differentiation across channels
+   - Target audience alignment for integrated approach
+
+2. **Channel-Specific Positioning**
+   - PPC positioning strategy and messaging
+   - SEO positioning and content themes
+   - Cross-channel positioning consistency
+   - Platform-specific positioning adaptations
+
+3. **Audience-Specific Positioning**
+   - Primary audience positioning messages
+   - Secondary audience positioning variations
+   - Demographic-specific positioning approaches
+   - Behavioral targeting positioning themes
+
+4. **Competitive Positioning**
+   - How to position against main competitors
+   - Defensive positioning strategies
+   - Offensive positioning for market expansion
+   - Integrated competitive response strategies
+
+5. **Content and Creative Positioning**
+   - Ad copy positioning framework
+   - SEO content positioning themes
+   - Landing page positioning consistency
+   - Creative positioning across channels
+
+6. **Local Positioning (if applicable)**
+   - Local search positioning strategy
+   - Geographic positioning themes
+   - Community positioning approaches
+   - Local expertise positioning
+
+7. **Seasonal and Event-Driven Positioning**
+   - Year-round positioning themes
+   - Seasonal positioning variations
+   - Holiday positioning strategies
+   - Event-driven positioning opportunities
+
+8. **Budget-Based Positioning**
+   - High-budget positioning strategies
+   - Limited-budget positioning approaches
+   - ROI-focused positioning themes
+   - Scaling positioning considerations
+
+9. **Cross-Channel Synergy Positioning**
+   - How PPC and SEO positioning support each other
+   - Unified messaging strategies
+   - Complementary positioning approaches
+   - Integrated brand building positioning
+
+Please provide specific, actionable positioning strategies that can be immediately implemented across both PPC and SEO channels to maximize performance and competitive advantage.
+"""
+
+            phase5_template = """
+# Phase 5: PPC Campaign Implementation Strategy
+
+Based on all previous analysis, I need you to develop comprehensive PPC campaign implementation strategies that integrate with SEO efforts.
+
+## Business Context:
+- **Business**: {{business_name}}
+- **Industry**: {{industry}}
+- **Services**: {{services}}
+- **Target Audience**: {{target_audience}}
+- **Budget Range**: {{budget_range}}
+- **Primary Goal**: {{primary_goal}}
+
+## PPC Campaign Implementation Strategy Required:
+
+Please develop comprehensive PPC implementation strategies including:
+
+1. **Campaign Architecture**
+   - Recommended campaign structure and organization
+   - Campaign types (Search, Display, Video, Shopping, Performance Max)
+   - Budget allocation across campaigns and platforms
+   - Bidding strategy recommendations
+
+2. **Keyword Strategy (PPC-SEO Integration)**
+   - Primary PPC keyword targets
+   - Keywords that support SEO content strategy
+   - Long-tail keyword strategies
+   - Negative keyword recommendations
+   - Seasonal keyword variations
+
+3. **Ad Copy Strategy**
+   - Headline themes that align with SEO content
+   - Description themes and variations
+   - Call-to-action recommendations
+   - Ad extension strategies
+   - Messaging that supports brand consistency
+
+4. **Targeting Strategy**
+   - Demographics targeting recommendations
+   - Geographic targeting strategies
+   - Device targeting optimizations
+   - Dayparting recommendations
+   - Audience targeting integration with SEO insights
+
+5. **Landing Page Strategy (PPC-SEO Aligned)**
+   - Landing page requirements for PPC
+   - Pages that can serve both PPC and SEO
+   - Conversion optimization strategies
+   - A/B testing opportunities
+   - User experience improvements
+
+6. **Budget Management**
+   - Daily budget recommendations
+   - Budget allocation across campaigns
+   - Seasonal budget adjustments
+   - ROI optimization approaches
+   - Budget coordination with SEO efforts
+
+7. **Performance Tracking**
+   - Key performance indicators (KPIs)
+   - Conversion tracking setup
+   - Attribution modeling recommendations
+   - Cross-channel reporting framework
+   - SEO-PPC performance correlation
+
+8. **Launch Strategy**
+   - Phase 1 PPC launch plan (first 30 days)
+   - Phase 2 optimization (days 31-90)
+   - Phase 3 scaling (days 91-180)
+   - Integration with SEO timeline
+   - Success benchmarks
+
+9. **SEO-PPC Integration**
+   - Keyword data sharing strategies
+   - Content that supports both channels
+   - Cross-channel optimization opportunities
+   - Unified reporting and analysis
+   - Synergy maximization tactics
+
+10. **Optimization Framework**
+    - Weekly optimization tasks
+    - Monthly performance reviews
+    - Quarterly strategy adjustments
+    - Cross-channel optimization
+    - Competitive monitoring
+
+Please provide specific, actionable PPC strategies that complement SEO efforts and maximize integrated performance.
+"""
+
+            phase6_template = """
+# Phase 6: SEO Foundation & Technical Analysis
+
+Based on the previous marketing analysis, I need you to develop a comprehensive SEO foundation strategy that complements the PPC campaigns.
+
+## Business Context:
+- **Business**: {{business_name}}
+- **Industry**: {{industry}}
+- **Website**: {{website}}
+- **Services**: {{services}}
+- **Target Audience**: {{target_audience}}
+- **Location**: {{location}} (Service Area: {{service_area}})
+
+## SEO Foundation Analysis Required:
+
+Please provide a comprehensive SEO foundation analysis including:
+
+1. **Technical SEO Assessment**
+   - Site structure and navigation optimization
+   - Page speed and Core Web Vitals priorities
+   - Mobile optimization requirements
+   - Schema markup opportunities
+   - URL structure recommendations
+
+2. **Local SEO Strategy** (if applicable)
+   - Google Business Profile optimization
+   - Local citation building strategy
+   - Location-based keyword opportunities
+   - Local link building opportunities
+   - Review management strategy
+
+3. **Content Architecture**
+   - Site map and information architecture
+   - Content gap analysis
+   - Internal linking strategy
+   - Content categorization and taxonomy
+   - User experience optimization
+
+4. **SEO-PPC Integration Strategy**
+   - Keyword data sharing between PPC and SEO
+   - Content themes that support both channels
+   - Landing page optimization for both paid and organic
+   - Conversion funnel alignment
+   - Budget allocation between SEO and PPC
+
+5. **Competitive SEO Analysis**
+   - Competitor organic visibility assessment
+   - Content gaps vs. competitors
+   - Backlink opportunities analysis
+   - SERP feature optimization opportunities
+   - Competitive keyword overlaps
+
+6. **Technical Implementation Priorities**
+   - Priority 1: Critical technical fixes
+   - Priority 2: Performance optimizations
+   - Priority 3: Enhanced features and schema
+   - Implementation timeline
+   - Resource requirements
+
+7. **SEO Foundation Metrics**
+   - Baseline organic traffic analysis
+   - Current ranking position assessment
+   - Technical health score
+   - Content performance metrics
+   - User engagement indicators
+
+8. **SEO-PPC Synergy Opportunities**
+   - Shared keyword strategies
+   - Content that supports both channels
+   - Cross-channel attribution modeling
+   - Integrated measurement framework
+   - Unified reporting structure
+
+Please provide specific, actionable SEO foundation strategies that complement the PPC campaigns.
+"""
+
+            phase7_template = """
+# Phase 7: Content Strategy & Keyword Research (SEO Focus)
+
+Building on the SEO foundation, I need you to develop a comprehensive content strategy and keyword research plan for organic growth.
+
+## Business Context:
+- **Business**: {{business_name}}
+- **Industry**: {{industry}}
+- **Services**: {{services}}
+- **Target Audience**: {{target_audience}}
+- **Location**: {{location}}
+- **Competitors**: {{competitors}}
+
+## Content Strategy & Keyword Research Required:
+
+Please develop comprehensive strategies including:
+
+1. **Keyword Research Strategy**
+   - Primary keyword targets (high-volume, high-intent)
+   - Secondary keyword opportunities
+   - Long-tail keyword strategy
+   - Local keyword variations
+   - Seasonal keyword patterns
+   - Voice search optimization keywords
+
+2. **Content Pillar Development**
+   - Core content themes and topics
+   - Supporting content clusters
+   - Content depth and breadth strategy
+   - Expert authority positioning
+   - Content differentiation from competitors
+
+3. **Content Types & Formats**
+   - Blog post and article strategy
+   - Service page optimization
+   - Resource and tool creation
+   - Video content opportunities
+   - Infographic and visual content
+   - Interactive content possibilities
+
+4. **Content Calendar & Production**
+   - Monthly content themes
+   - Weekly publishing schedule
+   - Seasonal content planning
+   - Event-driven content opportunities
+   - Content refresh and update strategy
+
+5. **Content Optimization Strategy**
+   - On-page SEO optimization
+   - Featured snippet targeting
+   - People Also Ask optimization
+   - Local content optimization
+   - E-A-T (Expertise, Authoritativeness, Trustworthiness) building
+
+6. **Content Distribution Strategy**
+   - Social media content adaptation
+   - Email newsletter integration
+   - Third-party publication opportunities
+   - Content syndication strategy
+   - Community engagement approach
+
+7. **Content Performance Measurement**
+   - Organic traffic growth metrics
+   - Keyword ranking improvements
+   - Content engagement metrics
+   - Lead generation from content
+   - Social sharing and backlink acquisition
+
+8. **Content-PPC Integration**
+   - Content that supports PPC landing pages
+   - Blog posts that nurture PPC traffic
+   - SEO content that reduces PPC costs
+   - Cross-channel content promotion
+   - Unified messaging across channels
+
+9. **Content Gap Analysis**
+   - Competitor content analysis
+   - Missing content opportunities
+   - Content format gaps
+   - Seasonal content needs
+   - Industry trend content opportunities
+
+10. **Content Resource Planning**
+    - Content creation resource needs
+    - Content management workflow
+    - Content optimization process
+    - Content promotion strategy
+    - Content performance review cycles
+
+Please provide specific, actionable content strategies that will drive organic growth and support the overall digital marketing strategy.
+"""
+
+            phase8_template = """
+# Phase 8: Link Building & Authority Strategy
+
+Based on the content strategy, I need you to develop a comprehensive link building and authority strategy to boost organic visibility.
+
+## Business Context:
+- **Business**: {{business_name}}
+- **Industry**: {{industry}}
+- **Services**: {{services}}
+- **Location**: {{location}}
+- **Target Audience**: {{target_audience}}
+- **Unique Value**: {{unique_value}}
+
+## Link Building & Authority Strategy Required:
+
+Please develop comprehensive strategies including:
+
+1. **Link Building Strategy**
+   - High-quality link target identification
+   - Industry-specific link opportunities
+   - Local link building opportunities
+   - Content-based link earning strategies
+   - Relationship-based link building
+   - Broken link building opportunities
+
+2. **Authority Building Strategy**
+   - Industry thought leadership positioning
+   - Expert content creation
+   - Speaking and presentation opportunities
+   - Industry publication contributions
+   - Professional association participation
+   - Awards and recognition pursuit
+
+3. **Local Authority Building** (if applicable)
+   - Local business directory optimization
+   - Chamber of Commerce participation
+   - Community event sponsorships
+   - Local media and PR opportunities
+   - Local business partnerships
+   - Community involvement strategies
+
+4. **Content-Driven Link Earning**
+   - Linkable asset creation
+   - Research and data-driven content
+   - Industry tools and resources
+   - Comprehensive guides and tutorials
+   - Infographics and visual content
+   - Case studies and success stories
+
+5. **Relationship Building Strategy**
+   - Industry influencer identification
+   - Journalist and blogger outreach
+   - Partnership and collaboration opportunities
+   - Guest posting and contribution strategies
+   - Social media relationship building
+   - Professional networking approach
+
+6. **Digital PR Strategy**
+   - Newsworthy story development
+   - Press release optimization
+   - Media kit creation
+   - Industry event participation
+   - Award submission strategy
+   - Crisis management and reputation protection
+
+7. **Link Building Campaign Planning**
+   - Monthly link building targets
+   - Outreach campaign development
+   - Content promotion campaigns
+   - Relationship nurturing schedules
+   - Link acquisition tracking
+   - Campaign performance measurement
+
+8. **Authority Measurement & Monitoring**
+   - Domain authority tracking
+   - Backlink profile analysis
+   - Brand mention monitoring
+   - Competitor authority comparison
+   - Industry ranking improvements
+   - SERP feature acquisitions
+
+9. **Risk Management**
+   - Link quality assessment
+   - Toxic link identification and removal
+   - Penalty risk evaluation
+   - White-hat practice adherence
+   - Link building compliance
+   - Reputation management
+
+10. **Integration with Overall Strategy**
+    - Link building support for PPC campaigns
+    - Authority building that supports content marketing
+    - Local link building that supports local PPC
+    - Cross-channel authority signals
+    - Unified brand messaging across link building
+
+Please provide specific, actionable link building and authority strategies that will boost organic visibility and support the overall marketing strategy.
+"""
+
+        # Generate prompts using Jinja2 templates based on client type
+        if client_type == 'PPC_ONLY':
+            templates = {
+                'phase1': phase1_template,
+                'phase2': phase2_template,
+                'phase3': phase3_template,
+                'phase4': phase4_template,
+                'phase5': phase5_template
+            }
+        elif client_type == 'SEO_ONLY':
+            templates = {
+                'phase1': phase1_template,
+                'phase2': phase2_template,
+                'phase3': phase3_template,
+                'phase4': phase4_template,
+                'phase5': phase5_template,
+                'phase6': phase6_template
+            }
+        else:  # BOTH
+            templates = {
+                'phase1': phase1_template,
+                'phase2': phase2_template,
+                'phase3': phase3_template,
+                'phase4': phase4_template,
+                'phase5': phase5_template,
+                'phase6': phase6_template,
+                'phase7': phase7_template,
+                'phase8': phase8_template
+            }
+
+        self.generated_prompts = {}
+        
+        for phase, template_content in templates.items():
+            template = Template(template_content)
+            rendered_prompt = template.render(**self.business_data)
+            self.generated_prompts[phase] = rendered_prompt
+
+        phase_count = len(templates)
+        self.print_success(f"Claude prompts generated successfully! ({phase_count} phases)")
+        return self.generated_prompts
+- **Business**: {{business_name}} - {{description}}
+- **Industry**: {{industry}}
+- **Location**: {{location}}
+- **Services**: {{services}}
+- **Unique Value**: {{unique_value}}
+
+## Known Competitors:
+{% for competitor in competitors %}
+- {{competitor}}
+{% endfor %}
+
+## Competitive Analysis Required:
+
+Please provide a comprehensive competitive landscape analysis including:
+
+1. **Direct Competitor Identification**
+   - Who are the main direct competitors?
+   - What are their primary service offerings?
+   - How do they position themselves in the market?
+
+2. **Indirect Competitor Analysis**
+   - Who are the indirect competitors?
+   - What adjacent services compete for the same customers?
+   - What alternative solutions do customers consider?
+
+3. **Competitive Positioning Map**
+   - How do competitors position themselves on price vs. quality?
+   - What are the main positioning themes in the market?
+   - Where are the positioning gaps?
+
+4. **Competitor PPC Strategy Analysis**
+   - What keywords are competitors likely targeting?
+   - What ad messaging themes do they probably use?
+   - What are their likely campaign objectives?
+
+5. **Competitive Advantages Analysis**
+   - What advantages do competitors have?
+   - What are their weaknesses?
+   - How can our client differentiate?
+
+6. **Market Share Estimation**
+   - Who are the market leaders?
+   - What's the competitive intensity?
+   - Where are the growth opportunities?
+
+7. **Competitive Threat Assessment**
+   - Which competitors pose the biggest threat?
+   - What competitive responses should we expect?
+   - How can we defend against competitive attacks?
+
+Please provide specific, actionable insights for PPC campaign development.
+"""
+
+        # Phase 3: Market Gap Identification
+        phase3_template = """
+# Phase 3: Market Gap Identification
+
+Building on the business intelligence and competitive analysis, I need you to identify specific market gaps and opportunities.
+
+## Business Context:
+- **Business**: {{business_name}}
+- **Industry**: {{industry}}
+- **Services**: {{services}}
+- **Target Audience**: {{target_audience}}
+- **Unique Value**: {{unique_value}}
+- **Primary Goal**: {{primary_goal}}
+
+## Market Gap Analysis Required:
+
+Please identify and analyze market gaps and opportunities including:
+
+1. **Service Gaps**
+   - What services are underserved in the market?
+   - What customer needs are not being met?
+   - What service combinations are missing?
+
+2. **Geographic Gaps**
+   - What geographic areas are underserved?
+   - Where are competitors weak or absent?
+   - What location-based opportunities exist?
+
+3. **Audience Gaps**
+   - What customer segments are underserved?
+   - What demographics are competitors missing?
+   - What psychographic groups are overlooked?
+
+4. **Messaging Gaps**
+   - What messages are competitors not using?
+   - What emotional triggers are being missed?
+   - What value propositions are unexplored?
+
+5. **Channel Gaps**
+   - What marketing channels are underutilized?
+   - What platforms are competitors not using effectively?
+   - What touchpoints are being missed?
+
+6. **Timing Gaps**
+   - What seasonal opportunities are missed?
+   - What time-based targeting is underutilized?
+   - What event-driven opportunities exist?
+
+7. **Price Point Gaps**
+   - What price points are underserved?
+   - What value tiers are missing?
+   - What pricing strategies are unexplored?
+
+8. **Technology Gaps**
+   - What technological advantages can we leverage?
+   - What automation opportunities exist?
+   - What digital experiences are missing?
+
+For each gap identified, please provide:
+- Specific opportunity description
+- Market size estimation
+- Implementation difficulty
+- Competitive advantage potential
+- PPC campaign implications
+
+Focus on gaps that can be exploited through strategic PPC campaigns.
+"""
+
+        # Phase 4: Strategic Positioning Development
+        phase4_template = """
+# Phase 4: Strategic Positioning Development
+
+Based on the previous analysis, I need you to develop a comprehensive strategic positioning strategy for PPC campaigns.
+
+## Business Context:
+- **Business**: {{business_name}}
+- **Industry**: {{industry}}
+- **Services**: {{services}}
+- **Target Audience**: {{target_audience}}
+- **Unique Value**: {{unique_value}}
+- **Budget Range**: {{budget_range}}
+- **Primary Goal**: {{primary_goal}}
+
+## Strategic Positioning Development Required:
+
+Please develop a comprehensive positioning strategy including:
+
+1. **Core Positioning Statement**
+   - Primary positioning theme
+   - Unique value proposition
+   - Competitive differentiation
+   - Target audience alignment
+
+2. **Positioning Pillars**
+   - 3-5 key positioning pillars
+   - Supporting evidence for each pillar
+   - How each pillar differentiates from competitors
+   - Relevance to target audience
+
+3. **Messaging Architecture**
+   - Primary brand message
+   - Secondary supporting messages
+   - Audience-specific message variations
+   - Emotional vs. rational messaging balance
+
+4. **Competitive Positioning**
+   - How to position against main competitors
+   - Defensive positioning for competitive attacks
+   - Offensive positioning for market expansion
+   - Positioning for different competitive scenarios
+
+5. **Audience Positioning**
+   - Primary audience positioning
+   - Secondary audience positioning
+   - Positioning for different customer journey stages
+   - Positioning for different customer segments
+
+6. **Channel Positioning**
+   - Google Ads positioning strategy
+   - Meta/Facebook positioning strategy
+   - LinkedIn positioning strategy (if applicable)
+   - Platform-specific positioning adaptations
+
+7. **Campaign Positioning Framework**
+   - Brand awareness campaign positioning
+   - Lead generation campaign positioning
+   - Sales campaign positioning
+   - Retargeting campaign positioning
+
+8. **Positioning Proof Points**
+   - Credentials and certifications
+   - Customer testimonials themes
+   - Case studies and success stories
+   - Awards and recognition
+
+9. **Positioning Testing Strategy**
+   - Key positioning elements to test
+   - A/B testing recommendations
+   - Performance metrics for positioning
+   - Positioning optimization approach
+
+Please provide specific, actionable positioning strategies that can be immediately implemented in PPC campaigns.
+"""
+
+        # Phase 5: Content & Campaign Strategy (PPC Focus)
+        phase5_template = """
+# Phase 5: Content & Campaign Strategy (PPC Focus)
+
+Based on all previous analysis, I need you to develop comprehensive content and campaign strategies for PPC implementation.
+
+## Business Context:
+- **Business**: {{business_name}}
+- **Industry**: {{industry}}
+- **Services**: {{services}}
+- **Target Audience**: {{target_audience}}
+- **Budget Range**: {{budget_range}}
+- **Primary Goal**: {{primary_goal}}
+
+## Content & Campaign Strategy Development Required:
+
+Please develop comprehensive strategies including:
+
+1. **Campaign Architecture**
+   - Recommended campaign types (Search, Display, Video, Shopping, Performance Max)
+   - Campaign structure and organization
+   - Budget allocation across campaigns
+   - Bidding strategy recommendations
+
+2. **Keyword Strategy**
+   - Primary keyword themes
+   - Secondary keyword opportunities
+   - Long-tail keyword suggestions
+   - Negative keyword recommendations
+   - Seasonal keyword variations
+
+3. **Ad Copy Strategy**
+   - Headline themes and variations
+   - Description themes and variations
+   - Call-to-action recommendations
+   - Ad extension strategies
+   - Emotional vs. rational copy balance
+
+4. **Landing Page Strategy**
+   - Landing page requirements
+   - Content structure recommendations
+   - Conversion optimization suggestions
+   - A/B testing opportunities
+
+5. **Audience Targeting Strategy**
+   - Demographics targeting
+   - Interest targeting
+   - Behavioral targeting
+   - Custom audience strategies
+   - Lookalike audience development
+
+6. **Content Calendar**
+   - Monthly content themes
+   - Weekly content types
+   - Seasonal content planning
+   - Event-driven content opportunities
+
+7. **Creative Strategy**
+   - Visual content themes
+   - Video content opportunities
+   - Image requirements and specifications
+   - Brand consistency guidelines
+
+8. **Measurement & Optimization**
+   - Key performance indicators
+   - Conversion tracking setup
+   - Attribution modeling
+   - Optimization schedule and process
+
+9. **Budget & Timeline**
+   - Phase 1 launch strategy (first 30 days)
+   - Phase 2 optimization (days 31-90)
+   - Phase 3 scaling (days 91-180)
+   - Budget allocation and pacing
+
+10. **Competitive Response Strategy**
+    - Monitoring competitive activity
+    - Responding to competitive moves
+    - Defending market position
+    - Capitalizing on competitive weaknesses
+
+Please provide specific, actionable strategies that can be immediately implemented for PPC campaign launch and management.
+"""
+
+        # Phase 6: SEO Foundation & Technical Analysis
+        phase6_template = """
+# Phase 6: SEO Foundation & Technical Analysis
+
+Based on the previous marketing analysis, I need you to develop a comprehensive SEO foundation strategy that complements the PPC campaigns.
+
+## Business Context:
+- **Business**: {{business_name}}
+- **Industry**: {{industry}}
+- **Website**: {{website}}
+- **Services**: {{services}}
+- **Target Audience**: {{target_audience}}
+- **Location**: {{location}} (Service Area: {{service_area}})
+
+## SEO Foundation Analysis Required:
+
+Please provide a comprehensive SEO foundation analysis including:
+
+1. **Technical SEO Assessment**
+   - Site structure and navigation optimization
+   - Page speed and Core Web Vitals priorities
+   - Mobile optimization requirements
+   - Schema markup opportunities
+   - URL structure recommendations
+
+2. **Local SEO Strategy** (if applicable)
+   - Google Business Profile optimization
+   - Local citation building strategy
+   - Location-based keyword opportunities
+   - Local link building opportunities
+   - Review management strategy
+
+3. **Content Architecture**
+   - Site map and information architecture
+   - Content gap analysis
+   - Internal linking strategy
+   - Content categorization and taxonomy
+   - User experience optimization
+
+4. **SEO-PPC Integration Strategy**
+   - Keyword data sharing between PPC and SEO
+   - Content themes that support both channels
+   - Landing page optimization for both paid and organic
+   - Conversion funnel alignment
+   - Budget allocation between SEO and PPC
+
+5. **Competitive SEO Analysis**
+   - Competitor organic visibility assessment
+   - Content gaps vs. competitors
+   - Backlink opportunities analysis
+   - SERP feature optimization opportunities
+   - Competitive keyword overlaps
+
+6. **Technical Implementation Priorities**
+   - Priority 1: Critical technical fixes
+   - Priority 2: Performance optimizations
+   - Priority 3: Enhanced features and schema
+   - Implementation timeline
+   - Resource requirements
+
+7. **SEO Foundation Metrics**
+   - Baseline organic traffic analysis
+   - Current ranking position assessment
+   - Technical health score
+   - Content performance metrics
+   - User engagement indicators
+
+8. **SEO-PPC Synergy Opportunities**
+   - Shared keyword strategies
+   - Content that supports both channels
+   - Cross-channel attribution modeling
+   - Integrated measurement framework
+   - Unified reporting structure
+
+Please provide specific, actionable SEO foundation strategies that complement the PPC campaigns.
+"""
+
+        # Phase 7: Content Strategy & Keyword Research
+        phase7_template = """
+# Phase 7: Content Strategy & Keyword Research (SEO Focus)
+
+Building on the SEO foundation, I need you to develop a comprehensive content strategy and keyword research plan for organic growth.
+
+## Business Context:
+- **Business**: {{business_name}}
+- **Industry**: {{industry}}
+- **Services**: {{services}}
+- **Target Audience**: {{target_audience}}
+- **Location**: {{location}}
+- **Competitors**: {{competitors}}
+
+## Content Strategy & Keyword Research Required:
+
+Please develop comprehensive strategies including:
+
+1. **Keyword Research Strategy**
+   - Primary keyword targets (high-volume, high-intent)
+   - Secondary keyword opportunities
+   - Long-tail keyword strategy
+   - Local keyword variations
+   - Seasonal keyword patterns
+   - Voice search optimization keywords
+
+2. **Content Pillar Development**
+   - Core content themes and topics
+   - Supporting content clusters
+   - Content depth and breadth strategy
+   - Expert authority positioning
+   - Content differentiation from competitors
+
+3. **Content Types & Formats**
+   - Blog post and article strategy
+   - Service page optimization
+   - Resource and tool creation
+   - Video content opportunities
+   - Infographic and visual content
+   - Interactive content possibilities
+
+4. **Content Calendar & Production**
+   - Monthly content themes
+   - Weekly publishing schedule
+   - Seasonal content planning
+   - Event-driven content opportunities
+   - Content refresh and update strategy
+
+5. **Content Optimization Strategy**
+   - On-page SEO optimization
+   - Featured snippet targeting
+   - People Also Ask optimization
+   - Local content optimization
+   - E-A-T (Expertise, Authoritativeness, Trustworthiness) building
+
+6. **Content Distribution Strategy**
+   - Social media content adaptation
+   - Email newsletter integration
+   - Third-party publication opportunities
+   - Content syndication strategy
+   - Community engagement approach
+
+7. **Content Performance Measurement**
+   - Organic traffic growth metrics
+   - Keyword ranking improvements
+   - Content engagement metrics
+   - Lead generation from content
+   - Social sharing and backlink acquisition
+
+8. **Content-PPC Integration**
+   - Content that supports PPC landing pages
+   - Blog posts that nurture PPC traffic
+   - SEO content that reduces PPC costs
+   - Cross-channel content promotion
+   - Unified messaging across channels
+
+9. **Content Gap Analysis**
+   - Competitor content analysis
+   - Missing content opportunities
+   - Content format gaps
+   - Seasonal content needs
+   - Industry trend content opportunities
+
+10. **Content Resource Planning**
+    - Content creation resource needs
+    - Content management workflow
+    - Content optimization process
+    - Content promotion strategy
+    - Content performance review cycles
+
+Please provide specific, actionable content strategies that will drive organic growth and support the overall digital marketing strategy.
+"""
+
+        # Phase 8: Link Building & Authority Strategy
+        phase8_template = """
+# Phase 8: Link Building & Authority Strategy
+
+Based on the content strategy, I need you to develop a comprehensive link building and authority strategy to boost organic visibility.
+
+## Business Context:
+- **Business**: {{business_name}}
+- **Industry**: {{industry}}
+- **Services**: {{services}}
+- **Location**: {{location}}
+- **Target Audience**: {{target_audience}}
+- **Unique Value**: {{unique_value}}
+
+## Link Building & Authority Strategy Required:
+
+Please develop comprehensive strategies including:
+
+1. **Link Building Strategy**
+   - High-quality link target identification
+   - Industry-specific link opportunities
+   - Local link building opportunities
+   - Content-based link earning strategies
+   - Relationship-based link building
+   - Broken link building opportunities
+
+2. **Authority Building Strategy**
+   - Industry thought leadership positioning
+   - Expert content creation
+   - Speaking and presentation opportunities
+   - Industry publication contributions
+   - Professional association participation
+   - Awards and recognition pursuit
+
+3. **Local Authority Building** (if applicable)
+   - Local business directory optimization
+   - Chamber of Commerce participation
+   - Community event sponsorships
+   - Local media and PR opportunities
+   - Local business partnerships
+   - Community involvement strategies
+
+4. **Content-Driven Link Earning**
+   - Linkable asset creation
+   - Research and data-driven content
+   - Industry tools and resources
+   - Comprehensive guides and tutorials
+   - Infographics and visual content
+   - Case studies and success stories
+
+5. **Relationship Building Strategy**
+   - Industry influencer identification
+   - Journalist and blogger outreach
+   - Partnership and collaboration opportunities
+   - Guest posting and contribution strategies
+   - Social media relationship building
+   - Professional networking approach
+
+6. **Digital PR Strategy**
+   - Newsworthy story development
+   - Press release optimization
+   - Media kit creation
+   - Industry event participation
+   - Award submission strategy
+   - Crisis management and reputation protection
+
+7. **Link Building Campaign Planning**
+   - Monthly link building targets
+   - Outreach campaign development
+   - Content promotion campaigns
+   - Relationship nurturing schedules
+   - Link acquisition tracking
+   - Campaign performance measurement
+
+8. **Authority Measurement & Monitoring**
+   - Domain authority tracking
+   - Backlink profile analysis
+   - Brand mention monitoring
+   - Competitor authority comparison
+   - Industry ranking improvements
+   - SERP feature acquisitions
+
+9. **Risk Management**
+   - Link quality assessment
+   - Toxic link identification and removal
+   - Penalty risk evaluation
+   - White-hat practice adherence
+   - Link building compliance
+   - Reputation management
+
+10. **Integration with Overall Strategy**
+    - Link building support for PPC campaigns
+    - Authority building that supports content marketing
+    - Local link building that supports local PPC
+    - Cross-channel authority signals
+    - Unified brand messaging across link building
+
+Please provide specific, actionable link building and authority strategies that will boost organic visibility and support the overall marketing strategy.
+"""
+
+        # Generate prompts using Jinja2 templates based on client type
+        client_type = self.business_data.get('client_type', 'BOTH')
+        
+        if client_type == 'PPC_ONLY':
+            templates = {
+                'phase1': phase1_template,
+                'phase2': phase2_template,
+                'phase3': phase3_template,
+                'phase4': phase4_template,
+                'phase5': phase5_template
+            }
+        elif client_type == 'SEO_ONLY':
+            templates = {
+                'phase1': phase1_template,
+                'phase2': phase2_template,
+                'phase3': phase3_template,
+                'phase4': phase4_template,
+                'phase6': phase6_template,
+                'phase7': phase7_template,
+                'phase8': phase8_template
+            }
+        else:  # BOTH
+            templates = {
+                'phase1': phase1_template,
+                'phase2': phase2_template,
+                'phase3': phase3_template,
+                'phase4': phase4_template,
+                'phase5': phase5_template,
+                'phase6': phase6_template,
+                'phase7': phase7_template,
+                'phase8': phase8_template
+            }
+
+        self.generated_prompts = {}
+        
+        for phase, template_content in templates.items():
+            template = Template(template_content)
+            rendered_prompt = template.render(**self.business_data)
+            self.generated_prompts[phase] = rendered_prompt
+
+        phase_count = len(templates)
+        self.print_success(f"Claude prompts generated successfully! ({phase_count} phases)")
+        return self.generated_prompts
+
+    def create_research_project(self):
+        """Create complete research project structure"""
+        self.print_header("📁 Creating Research Project Structure")
+        
+        # Create project context file
+        client_type = self.business_data.get('client_type', 'BOTH')
+        client_type_display = {
+            'PPC_ONLY': 'PPC Only',
+            'SEO_ONLY': 'SEO Only',
+            'BOTH': 'PPC + SEO Integrated'
+        }.get(client_type, 'PPC + SEO Integrated')
+        
+        phase_count = len(self.generated_prompts)
+        
+        if client_type == 'PPC_ONLY':
+            phases_description = f"{phase_count} (PPC-focused research)"
+            files_section = """## Files Generated
+### PPC Research Phases (1-5)
+- Phase 1 Prompt: phase1_business_intelligence_prompt.md
+- Phase 2 Prompt: phase2_competitive_landscape_prompt.md
+- Phase 3 Prompt: phase3_market_gaps_prompt.md
+- Phase 4 Prompt: phase4_strategic_positioning_prompt.md
+- Phase 5 Prompt: phase5_content_strategy_prompt.md"""
+        elif client_type == 'SEO_ONLY':
+            phases_description = f"{phase_count} (SEO-focused research)"
+            files_section = """## Files Generated
+### SEO Research Phases (1-4, 6-8)
+- Phase 1 Prompt: phase1_business_intelligence_prompt.md
+- Phase 2 Prompt: phase2_competitive_landscape_prompt.md
+- Phase 3 Prompt: phase3_market_gaps_prompt.md
+- Phase 4 Prompt: phase4_strategic_positioning_prompt.md
+- Phase 6 Prompt: phase6_seo_foundation_prompt.md
+- Phase 7 Prompt: phase7_seo_content_strategy_prompt.md
+- Phase 8 Prompt: phase8_seo_authority_strategy_prompt.md"""
+        else:
+            phases_description = f"{phase_count} (PPC + SEO integrated)"
+            files_section = """## Files Generated
+### PPC Research Phases (1-5)
+- Phase 1 Prompt: phase1_business_intelligence_prompt.md
+- Phase 2 Prompt: phase2_competitive_landscape_prompt.md
+- Phase 3 Prompt: phase3_market_gaps_prompt.md
+- Phase 4 Prompt: phase4_strategic_positioning_prompt.md
+- Phase 5 Prompt: phase5_content_strategy_prompt.md
+
+### SEO Research Phases (6-8)
+- Phase 6 Prompt: phase6_seo_foundation_prompt.md
+- Phase 7 Prompt: phase7_seo_content_strategy_prompt.md
+- Phase 8 Prompt: phase8_seo_authority_strategy_prompt.md"""
+        
+        project_context = f"""# {self.business_data['business_name']} - Claude Research Project
+
+## Project Overview
+- **Client**: {self.business_data['business_name']}
+- **Industry**: {self.business_data['industry']}
+- **Client Type**: {client_type_display}
+- **Created**: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
+- **Research Phases**: {phases_description}
+
+## Business Context
+{self.business_data['description']}
+
+## Services
+{self.business_data['services']}
+
+## Target Audience
+{self.business_data['target_audience']}
+
+## Campaign Objectives
+- **Primary Goal**: {self.business_data['primary_goal']}
+- **Budget Range**: {self.business_data['budget_range']}
+- **Success Metrics**: {self.business_data['success_metrics']}
+
+## Competitors
+{chr(10).join(f"- {comp}" for comp in self.business_data['competitors'])}
+
+## Next Steps
+1. Execute Phase 1 prompt in Claude
+2. Save Claude's response in phase_outputs/phase1_business_intelligence.md
+3. Continue through all {phase_count} phases sequentially
+4. Compile strategic insights for {client_type_display.lower()}
+
+{files_section}
+"""
+
+        # Save project context
+        context_path = f"{self.folder_name}/02_market_research/claude_research/00_project_context.md"
+        with open(context_path, 'w', encoding='utf-8') as f:
+            f.write(project_context)
+
+        # Save individual prompt files based on what was generated
+        prompt_files = {
+            'phase1': 'phase1_business_intelligence_prompt.md',
+            'phase2': 'phase2_competitive_landscape_prompt.md',
+            'phase3': 'phase3_market_gaps_prompt.md',
+            'phase4': 'phase4_strategic_positioning_prompt.md',
+            'phase5': 'phase5_content_strategy_prompt.md',
+            'phase6': 'phase6_seo_foundation_prompt.md',
+            'phase7': 'phase7_seo_content_strategy_prompt.md',
+            'phase8': 'phase8_seo_authority_strategy_prompt.md'
+        }
+
+        for phase, filename in prompt_files.items():
+            if phase in self.generated_prompts:
+                file_path = f"{self.folder_name}/02_market_research/claude_research/{filename}"
+                with open(file_path, 'w', encoding='utf-8') as f:
+                    f.write(self.generated_prompts[phase])
+
+        # Create workflow instructions based on client type
+        client_type = self.business_data.get('client_type', 'BOTH')
+        phase_count = len(self.generated_prompts)
+        
+        if client_type == 'PPC_ONLY':
+            workflow_instructions = f"""# Claude Research Workflow Instructions - PPC Focus
+
+## How to Execute This Research
+
+### Step 1: Prepare Claude
+1. Open Claude AI (claude.ai)
+2. Start a new conversation
+3. Keep this conversation open for all {phase_count} phases
+
+### Step 2: Execute PPC Research Phases (1-5)
+1. Copy the entire content from `phase1_business_intelligence_prompt.md`
+2. Paste it into Claude
+3. Wait for Claude's comprehensive response
+4. Copy Claude's response and save it as `phase_outputs/phase1_business_intelligence.md`
+
+### Step 3: Continue PPC Phases 2-5
+1. Copy the entire content from `phase2_competitive_landscape_prompt.md`
+2. Paste it into the same Claude conversation
+3. Wait for Claude's response
+4. Save the response as `phase_outputs/phase2_competitive_landscape.md`
+5. Continue this process for phases 3, 4, and 5
+
+### Step 4: Compile Strategic Insights
+1. Review all phase outputs
+2. Create a master strategic document
+3. Identify key insights and action items
+4. Develop PPC campaign implementation roadmap
+
+## Expected Outputs
+### PPC Research Phases (1-5)
+- Phase 1: Business intelligence and market position analysis
+- Phase 2: Competitive landscape mapping and positioning gaps
+- Phase 3: Market opportunities and gap identification
+- Phase 4: Strategic positioning and differentiation strategy
+- Phase 5: Content strategy and PPC campaign implementation plan
+
+## Tips for Best Results
+- Execute phases in order
+- Don't skip any phases
+- Keep the Claude conversation continuous
+- Review and validate insights against real market data
+- Use insights to inform PPC campaign strategy
+- Focus on paid advertising opportunities and optimization
+
+## Estimated Time
+- Phase execution: 45-60 minutes ({phase_count} phases)
+- Review and compilation: 60-90 minutes
+- Total research time: 2-3 hours
+"""
+        elif client_type == 'SEO_ONLY':
+            workflow_instructions = f"""# Claude Research Workflow Instructions - SEO Focus
+
+## How to Execute This Research
+
+### Step 1: Prepare Claude
+1. Open Claude AI (claude.ai)
+2. Start a new conversation
+3. Keep this conversation open for all {phase_count} phases
+
+### Step 2: Execute Foundation Research Phases (1-4)
+1. Copy the entire content from `phase1_business_intelligence_prompt.md`
+2. Paste it into Claude
+3. Wait for Claude's comprehensive response
+4. Copy Claude's response and save it as `phase_outputs/phase1_business_intelligence.md`
+
+### Step 3: Continue Foundation Phases 2-4
+1. Copy the entire content from `phase2_competitive_landscape_prompt.md`
+2. Paste it into the same Claude conversation
+3. Wait for Claude's response
+4. Save the response as `phase_outputs/phase2_competitive_landscape.md`
+5. Continue this process for phases 3 and 4
+
+### Step 4: Execute SEO-Specific Phases (6-8)
+1. Copy the entire content from `phase6_seo_foundation_prompt.md`
+2. Paste it into the same Claude conversation
+3. Wait for Claude's response
+4. Save the response as `phase_outputs/phase6_seo_foundation.md`
+5. Continue this process for phases 7 and 8
+
+### Step 5: Compile Strategic Insights
+1. Review all phase outputs
+2. Create a master strategic document
+3. Identify key insights and action items
+4. Develop SEO implementation roadmap
+
+## Expected Outputs
+### Foundation Research Phases (1-4)
+- Phase 1: Business intelligence and market position analysis
+- Phase 2: Competitive landscape mapping and positioning gaps
+- Phase 3: Market opportunities and gap identification
+- Phase 4: Strategic positioning and differentiation strategy
+
+### SEO Research Phases (6-8)
+- Phase 6: SEO foundation and technical analysis
+- Phase 7: SEO content strategy and keyword research
+- Phase 8: Link building and authority strategy
+
+## Tips for Best Results
+- Execute phases in order
+- Don't skip any phases
+- Keep the Claude conversation continuous
+- Review and validate insights against real market data
+- Use insights to inform SEO strategy
+- Focus on organic search opportunities and long-term growth
+
+## Estimated Time
+- Phase execution: 50-70 minutes ({phase_count} phases)
+- Review and compilation: 90-120 minutes
+- Total research time: 2.5-3.5 hours
+"""
+        else:  # BOTH
+            workflow_instructions = f"""# Claude Research Workflow Instructions - Integrated PPC + SEO
+
+## How to Execute This Research
+
+### Step 1: Prepare Claude
+1. Open Claude AI (claude.ai)
+2. Start a new conversation
+3. Keep this conversation open for all {phase_count} phases
+
+### Step 2: Execute Foundation Research Phases (1-4)
+1. Copy the entire content from `phase1_business_intelligence_prompt.md`
+2. Paste it into Claude
+3. Wait for Claude's comprehensive response
+4. Copy Claude's response and save it as `phase_outputs/phase1_business_intelligence.md`
+
+### Step 3: Continue Foundation Phases 2-4
+1. Copy the entire content from `phase2_competitive_landscape_prompt.md`
+2. Paste it into the same Claude conversation
+3. Wait for Claude's response
+4. Save the response as `phase_outputs/phase2_competitive_landscape.md`
+5. Continue this process for phases 3 and 4
+
+### Step 4: Execute PPC Phase (5)
+1. Copy the entire content from `phase5_content_strategy_prompt.md`
+2. Paste it into the same Claude conversation
+3. Wait for Claude's response
+4. Save the response as `phase_outputs/phase5_content_strategy.md`
+
+### Step 5: Execute SEO Phases (6-8)
+1. Copy the entire content from `phase6_seo_foundation_prompt.md`
+2. Paste it into the same Claude conversation
+3. Wait for Claude's response
+4. Save the response as `phase_outputs/phase6_seo_foundation.md`
+5. Continue this process for phases 7 and 8
+
+### Step 6: Compile Strategic Insights
+1. Review all phase outputs
+2. Create a master strategic document
+3. Identify key insights and action items
+4. Develop integrated PPC + SEO implementation roadmap
+
+## Expected Outputs
+### Foundation Research Phases (1-4)
+- Phase 1: Business intelligence and market position analysis
+- Phase 2: Competitive landscape mapping and positioning gaps
+- Phase 3: Market opportunities and gap identification
+- Phase 4: Strategic positioning and differentiation strategy
+
+### PPC Research Phase (5)
+- Phase 5: Content strategy and PPC campaign implementation plan
+
+### SEO Research Phases (6-8)
+- Phase 6: SEO foundation and technical analysis
+- Phase 7: SEO content strategy and keyword research
+- Phase 8: Link building and authority strategy
+
+## Tips for Best Results
+- Execute phases in order
+- Don't skip any phases
+- Keep the Claude conversation continuous
+- Review and validate insights against real market data
+- Use insights to inform both PPC and SEO strategies
+- Look for synergies between PPC and SEO opportunities
+- Focus on integrated campaign approach
+
+## Estimated Time
+- Phase execution: 60-90 minutes ({phase_count} phases)
+- Review and compilation: 90-120 minutes
+- Total research time: 3-4 hours
+"""
+
+        workflow_path = f"{self.folder_name}/02_market_research/claude_research/claude_research_workflow.md"
+        with open(workflow_path, 'w', encoding='utf-8') as f:
+            f.write(workflow_instructions)
+
+        # Create template files for outputs based on generated phases
+        all_template_files = {
+            'phase1': 'phase_outputs/phase1_business_intelligence.md',
+            'phase2': 'phase_outputs/phase2_competitive_landscape.md',
+            'phase3': 'phase_outputs/phase3_market_gaps.md',
+            'phase4': 'phase_outputs/phase4_strategic_positioning.md',
+            'phase5': 'phase_outputs/phase5_content_strategy.md',
+            'phase6': 'phase_outputs/phase6_seo_foundation.md',
+            'phase7': 'phase_outputs/phase7_seo_content_strategy.md',
+            'phase8': 'phase_outputs/phase8_seo_authority_strategy.md'
+        }
+
+        # Only create template files for phases that were generated
+        template_files = []
+        for phase in self.generated_prompts.keys():
+            if phase in all_template_files:
+                template_files.append(all_template_files[phase])
+        
+        # Always create strategic insights file
+        template_files.append('strategic_insights.md')
+
+        for template_file in template_files:
+            file_path = f"{self.folder_name}/02_market_research/claude_research/{template_file}"
+            # Ensure directory exists
+            os.makedirs(os.path.dirname(file_path), exist_ok=True)
+            if not os.path.exists(file_path):
+                with open(file_path, 'w', encoding='utf-8') as f:
+                    filename_clean = os.path.basename(template_file).replace('_', ' ').replace('.md', '').title()
+                    f.write(f"# {filename_clean}\n\n*Paste Claude's response here*\n\n## Instructions\n\n1. Copy the prompt from the corresponding prompt file\n2. Paste it into Claude AI (claude.ai)\n3. Copy Claude's complete response\n4. Paste the response here, replacing this placeholder text\n\n## Timestamp\nCreated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n")
+
+        self.print_success("Research project structure created!")
+        return True
+
+    def export_for_claude(self):
+        """Create final export with instructions"""
+        self.print_header("📤 Creating Claude Export Package")
+        
+        # Create summary file based on client type
+        client_type = self.business_data.get('client_type', 'BOTH')
+        client_type_display = {
+            'PPC_ONLY': 'PPC Only',
+            'SEO_ONLY': 'SEO Only',
+            'BOTH': 'PPC + SEO Integrated'
+        }.get(client_type, 'PPC + SEO Integrated')
+        
+        phase_count = len(self.generated_prompts)
+        
+        if client_type == 'PPC_ONLY':
+            phases_section = """#### PPC Research Phases (1-5)
+1. **Phase 1**: Business Intelligence Analysis
+   - File: `phase1_business_intelligence_prompt.md`
+   - Save response as: `phase_outputs/phase1_business_intelligence.md`
+
+2. **Phase 2**: Competitive Landscape Mapping
+   - File: `phase2_competitive_landscape_prompt.md`
+   - Save response as: `phase_outputs/phase2_competitive_landscape.md`
+
+3. **Phase 3**: Market Gap Identification
+   - File: `phase3_market_gaps_prompt.md`
+   - Save response as: `phase_outputs/phase3_market_gaps.md`
+
+4. **Phase 4**: Strategic Positioning Development
+   - File: `phase4_strategic_positioning_prompt.md`
+   - Save response as: `phase_outputs/phase4_strategic_positioning.md`
+
+5. **Phase 5**: Content & Campaign Strategy (PPC)
+   - File: `phase5_content_strategy_prompt.md`
+   - Save response as: `phase_outputs/phase5_content_strategy.md`"""
+            
+            expected_outcomes = """- Market position analysis
+- Competitive landscape mapping
+- Market opportunity identification
+- Strategic positioning strategy
+- PPC campaign implementation plan"""
+            
+            time_estimate = "**Total research time**: 2-3 hours"
+            value_estimate = "**Implementation value**: Professional-grade strategic intelligence typically requiring 15-20 hours of manual research"
+            
+        elif client_type == 'SEO_ONLY':
+            phases_section = """#### Foundation Research Phases (1-4)
+1. **Phase 1**: Business Intelligence Analysis
+   - File: `phase1_business_intelligence_prompt.md`
+   - Save response as: `phase_outputs/phase1_business_intelligence.md`
+
+2. **Phase 2**: Competitive Landscape Mapping
+   - File: `phase2_competitive_landscape_prompt.md`
+   - Save response as: `phase_outputs/phase2_competitive_landscape.md`
+
+3. **Phase 3**: Market Gap Identification
+   - File: `phase3_market_gaps_prompt.md`
+   - Save response as: `phase_outputs/phase3_market_gaps.md`
+
+4. **Phase 4**: Strategic Positioning Development
+   - File: `phase4_strategic_positioning_prompt.md`
+   - Save response as: `phase_outputs/phase4_strategic_positioning.md`
+
+#### SEO Research Phases (6-8)
+6. **Phase 6**: SEO Foundation & Technical Analysis
+   - File: `phase6_seo_foundation_prompt.md`
+   - Save response as: `phase_outputs/phase6_seo_foundation.md`
+
+7. **Phase 7**: SEO Content Strategy & Keyword Research
+   - File: `phase7_seo_content_strategy_prompt.md`
+   - Save response as: `phase_outputs/phase7_seo_content_strategy.md`
+
+8. **Phase 8**: Link Building & Authority Strategy
+   - File: `phase8_seo_authority_strategy_prompt.md`
+   - Save response as: `phase_outputs/phase8_seo_authority_strategy.md`"""
+            
+            expected_outcomes = """- Market position analysis
+- Competitive landscape mapping
+- Market opportunity identification
+- Strategic positioning strategy
+- SEO foundation and technical strategy
+- Content marketing and keyword strategy
+- Link building and authority strategy"""
+            
+            time_estimate = "**Total research time**: 2.5-3.5 hours"
+            value_estimate = "**Implementation value**: Professional-grade strategic intelligence typically requiring 18-23 hours of manual research"
+            
+        else:  # BOTH
+            phases_section = """#### Foundation Research Phases (1-4)
+1. **Phase 1**: Business Intelligence Analysis
+   - File: `phase1_business_intelligence_prompt.md`
+   - Save response as: `phase_outputs/phase1_business_intelligence.md`
+
+2. **Phase 2**: Competitive Landscape Mapping
+   - File: `phase2_competitive_landscape_prompt.md`
+   - Save response as: `phase_outputs/phase2_competitive_landscape.md`
+
+3. **Phase 3**: Market Gap Identification
+   - File: `phase3_market_gaps_prompt.md`
+   - Save response as: `phase_outputs/phase3_market_gaps.md`
+
+4. **Phase 4**: Strategic Positioning Development
+   - File: `phase4_strategic_positioning_prompt.md`
+   - Save response as: `phase_outputs/phase4_strategic_positioning.md`
+
+#### PPC Research Phase (5)
+5. **Phase 5**: Content & Campaign Strategy (PPC)
+   - File: `phase5_content_strategy_prompt.md`
+   - Save response as: `phase_outputs/phase5_content_strategy.md`
+
+#### SEO Research Phases (6-8)
+6. **Phase 6**: SEO Foundation & Technical Analysis
+   - File: `phase6_seo_foundation_prompt.md`
+   - Save response as: `phase_outputs/phase6_seo_foundation.md`
+
+7. **Phase 7**: SEO Content Strategy & Keyword Research
+   - File: `phase7_seo_content_strategy_prompt.md`
+   - Save response as: `phase_outputs/phase7_seo_content_strategy.md`
+
+8. **Phase 8**: Link Building & Authority Strategy
+   - File: `phase8_seo_authority_strategy_prompt.md`
+   - Save response as: `phase_outputs/phase8_seo_authority_strategy.md`"""
+            
+            expected_outcomes = """- Market position analysis
+- Competitive landscape mapping
+- Market opportunity identification
+- Strategic positioning strategy
+- PPC campaign implementation plan
+- SEO foundation and technical strategy
+- Content marketing and keyword strategy
+- Link building and authority strategy"""
+            
+            time_estimate = "**Total research time**: 3-4 hours"
+            value_estimate = "**Implementation value**: Professional-grade strategic intelligence typically requiring 20-25 hours of manual research"
+        
+        summary_content = f"""# {self.business_data['business_name']} - Claude Research Summary
+
+## Quick Start Guide
+
+### 1. Open Claude AI
+- Go to claude.ai
+- Start a new conversation
+- Keep this conversation open for all {phase_count} phases
+
+### 2. Execute Research Phases
+Execute these prompts in order:
+
+{phases_section}
+
+### 3. Compile Results
+After completing all phases, review the outputs and create your strategic insights document.
+
+## Business Context Summary
+- **Business**: {self.business_data['business_name']}
+- **Industry**: {self.business_data['industry']}
+- **Client Type**: {client_type_display}
+- **Primary Goal**: {self.business_data['primary_goal']}
+- **Budget**: {self.business_data['budget_range']}
+- **Target Audience**: {self.business_data['target_audience']}
+
+## Generated Files
+- Project context and overview
+- {phase_count} customized Claude prompts
+- Workflow instructions
+- Output templates
+- Strategic insights framework
+
+## Expected Outcome
+Comprehensive strategic intelligence for {client_type_display.lower()} campaigns, including:
+{expected_outcomes}
+
+{time_estimate}
+{value_estimate}
+"""
+
+        summary_path = f"{self.folder_name}/02_market_research/claude_research/CLAUDE_RESEARCH_SUMMARY.md"
+        with open(summary_path, 'w', encoding='utf-8') as f:
+            f.write(summary_content)
+
+        # Save business data as JSON for future reference
+        data_path = f"{self.folder_name}/02_market_research/claude_research/business_data.json"
+        with open(data_path, 'w', encoding='utf-8') as f:
+            json.dump(self.business_data, f, indent=2)
+
+        self.print_success("Claude export package created!")
+        return True
+
+    def run_setup(self):
+        """Run the complete setup process"""
+        try:
+            # Step 1: Collect business intelligence
+            self.collect_business_intelligence()
+            
+            # Step 2: Generate Claude prompts
+            self.generate_claude_prompts()
+            
+            # Step 3: Create research project
+            self.create_research_project()
+            
+            # Step 4: Export for Claude
+            self.export_for_claude()
+            
+            # Final summary
+            self.print_header("✅ Setup Complete!")
+            
+            client_type = self.business_data.get('client_type', 'BOTH')
+            phase_count = len(self.generated_prompts)
+            
+            if self.console:
+                table = Table(title="Generated Files")
+                table.add_column("File", style="cyan")
+                table.add_column("Purpose", style="green")
+                
+                table.add_row("00_project_context.md", "Project overview and context")
+                
+                # Add rows for generated phases only
+                file_descriptions = {
+                    'phase1': "Phase 1 Claude prompt (Foundation)",
+                    'phase2': "Phase 2 Claude prompt (Foundation)",
+                    'phase3': "Phase 3 Claude prompt (Foundation)",
+                    'phase4': "Phase 4 Claude prompt (Foundation)",
+                    'phase5': "Phase 5 Claude prompt (PPC)",
+                    'phase6': "Phase 6 Claude prompt (SEO)",
+                    'phase7': "Phase 7 Claude prompt (SEO)",
+                    'phase8': "Phase 8 Claude prompt (SEO)"
+                }
+                
+                for phase in self.generated_prompts.keys():
+                    if phase in file_descriptions:
+                        filename = f"{phase}_*.md"
+                        table.add_row(filename, file_descriptions[phase])
+                
+                table.add_row("claude_research_workflow.md", "Step-by-step instructions")
+                table.add_row("CLAUDE_RESEARCH_SUMMARY.md", "Quick start guide")
+                
+                self.console.print(table)
+            else:
+                print("\n📋 Generated Files:")
+                print("  - 00_project_context.md (Project overview)")
+                
+                # Print generated phases only
+                file_descriptions = {
+                    'phase1': "Foundation",
+                    'phase2': "Foundation",
+                    'phase3': "Foundation",
+                    'phase4': "Foundation",
+                    'phase5': "PPC",
+                    'phase6': "SEO",
+                    'phase7': "SEO",
+                    'phase8': "SEO"
+                }
+                
+                for phase in sorted(self.generated_prompts.keys()):
+                    if phase in file_descriptions:
+                        phase_num = phase.replace('phase', '')
+                        category = file_descriptions[phase]
+                        print(f"  - {phase}_*_prompt.md ({category})")
+                
+                print("  - claude_research_workflow.md (Instructions)")
+                print("  - CLAUDE_RESEARCH_SUMMARY.md (Quick start)")
+
+            print(f"\n📁 Location: {self.folder_name}/02_market_research/claude_research/")
+            print(f"📖 Start with: CLAUDE_RESEARCH_SUMMARY.md")
+            print(f"🚀 Next: Execute Phase 1 prompt in Claude AI")
+            
+            return True
+            
+        except Exception as e:
+            self.print_warning(f"Setup failed: {str(e)}")
+            return False
+
+@click.command()
+@click.argument('client_name')
+def main(client_name):
+    """
+    Claude AI Research Setup Script
+    
+    Replaces manual competitor research with AI-powered strategic intelligence.
+    
+    Usage: python3 claude_research_setup.py "Client Name"
+    """
+    
+    if not client_name:
+        print("❌ Client name is required")
+        print("Usage: python3 claude_research_setup.py 'Client Name'")
+        sys.exit(1)
+    
+    # Create and run setup
+    setup = ClaudeResearchSetup(client_name)
+    success = setup.run_setup()
+    
+    if success:
+        print(f"\n🎯 Claude Research Setup completed successfully!")
+        print(f"📧 Ready for strategic intelligence gathering with Claude AI")
+    else:
+        print(f"\n❌ Setup failed. Please check the errors above.")
+        sys.exit(1)
+
+if __name__ == "__main__":
+    main()

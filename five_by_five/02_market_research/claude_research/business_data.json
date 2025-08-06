@@ -1,0 +1,26 @@
+{
+  "business_name": "Five by Five",
+  "industry": "Website Design and SEO Agency",
+  "website": "https://www.fivebyfive.com.au/",
+  "location": "Gold Coast, Australia",
+  "service_area": "Queensland",
+  "description": "Five by Five is a Gold Coast-based digital agency specialising in high-converting websites and strategic digital marketing. With a strong focus on clarity, conversion, and performance, the team delivers tailored web design, development, and marketing solutions that help businesses scale online. From brand messaging and SEO to paid advertising and custom integrations, Five by Five partners with clients to drive measurable growth through smart digital strategy and execution.",
+  "services": "Website Design, SEO Management, PPC Management",
+  "unique_value": "What makes Five by Five unique is its strategic focus on performance-driven digital outcomes, not just beautiful design. Unlike typical web agencies, they combine deep expertise in conversion optimisation, brand messaging, and integrated marketing to ensure every website delivers real business growth. Their proven \"Rocket Fuel\" process aligns design, tech, and strategy to help clients scale efficiently, while their commitment to clarity and results sets them apart in a crowded digital landscape.",
+  "target_audience": "Five by Five\u2019s primary target audience is established businesses and entrepreneurs looking to scale through high-performing digital channels. This includes service-based companies, online retailers, and professional service firms that need a strategic partner to improve their website, boost lead generation, and increase conversions. Their ideal clients typically have existing momentum, value results over vanity, and are ready to invest in digital infrastructure that drives measurable business growth.",
+  "customer_pain_points": "Five by Five helps businesses overcome common digital roadblocks like underperforming websites, unclear messaging, and fragmented marketing strategies. Many of their clients come with visually appealing sites that fail to convert, or scattered campaigns that lack direction. By aligning website design, brand messaging, SEO, and paid media into a cohesive, performance-driven strategy, Five by Five turns digital confusion into clarity and delivers real, measurable business outcomes. Their streamlined process also eliminates delays and miscommunication, making it easier for growing businesses to scale with confidence.",
+  "customer_demographics": "ChatGPT said:Five by Five\u2019s customer demographics typically include business owners, marketing managers, and entrepreneurs aged 30\u201355 who operate established, growth-focused businesses. These clients are often based in Australia (especially the Gold Coast, Brisbane, Sydney, and Melbourne), though the agency also works with clients internationally. Their customers span industries such as professional services, health and wellness, trades, education, eCommerce, and B2B. Most have annual revenues exceeding six figures and are ready to invest in strategic digital solutions that drive lead generation, sales, and scale. They value expertise, results, and a collaborative partnership.",
+  "competitors": [
+    "https://www.edgeonline.com.au/",
+    "https://thriveweb.com.au/",
+    "https://studiohawk.com.au/",
+    "https://digitalsurfer.com.au/",
+    "https://getmilk.com.au/"
+  ],
+  "primary_goal": "Lead Generation",
+  "budget_range": "$1000-$2500",
+  "success_metrics": "10 leads per month through meta ads",
+  "seasonal_trends": "none",
+  "current_marketing": "Google ads and SEO",
+  "biggest_challenges": "Getting qualified leads in for website design. Especially shopify website clients as that is easy for us to do"
+}
