@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>reality_events - Testing Framework</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Montserrat', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 40px 20px;
+            background-color: #ffffff;
+            font-weight: 400;
+        }
+        
+        .main-title {
+            color: #2c3e50;
+            text-align: center;
+            border-bottom: 3px solid #3498db;
+            padding-bottom: 15px;
+            margin-bottom: 30px;
+            font-size: 28px;
+            font-weight: 700;
+            font-family: 'Montserrat', sans-serif;
+        }
+        
+        .section-heading {
+            color: #34495e;
+            font-size: 22px;
+            margin-top: 35px;
+            margin-bottom: 15px;
+            border-left: 4px solid #3498db;
+            padding-left: 15px;
+            background-color: #f8f9fa;
+            padding: 10px 15px;
+            font-weight: 600;
+            font-family: 'Montserrat', sans-serif;
+        }
+        
+        .subsection-heading {
+            color: #2980b9;
+            font-size: 18px;
+            margin-top: 25px;
+            margin-bottom: 12px;
+            font-weight: 600;
+            font-family: 'Montserrat', sans-serif;
+        }
+        
+        .test-heading {
+            color: #e74c3c;
+            font-size: 16px;
+            margin-top: 20px;
+            margin-bottom: 10px;
+            font-weight: 600;
+            background-color: #fff5f5;
+            padding: 8px 12px;
+            border-left: 3px solid #e74c3c;
+            font-family: 'Montserrat', sans-serif;
+        }
+        
+        p {
+            margin-bottom: 12px;
+            text-align: justify;
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 400;
+        }
+        
+        ul, ol {
+            margin-bottom: 15px;
+            padding-left: 25px;
+            font-family: 'Montserrat', sans-serif;
+        }
+        
+        li {
+            margin-bottom: 6px;
+            font-weight: 400;
+        }
+        
+        .framework-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 25px 0;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            border-radius: 8px;
+            overflow: hidden;
+            font-family: 'Montserrat', sans-serif;
+        }
+        
+        .framework-table th {
+            background-color: #3498db;
+            color: white;
+            padding: 15px 12px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-family: 'Montserrat', sans-serif;
+        }
+        
+        .framework-table td {
+            border: 1px solid #e0e0e0;
+            padding: 12px;
+            text-align: left;
+            font-size: 14px;
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 400;
+        }
+        
+        .framework-table tr:nth-child(even) {
+            background-color: #f8f9fa;
+        }
+        
+        .framework-table tr:hover {
+            background-color: #e3f2fd;
+        }
+        
+        .priority-high {
+            color: #e74c3c;
+            font-weight: 600;
+        }
+        
+        .priority-medium {
+            color: #f39c12;
+            font-weight: 600;
+        }
+        
+        .priority-low {
+            color: #27ae60;
+            font-weight: 500;
+        }
+        
+        strong {
+            color: #2c3e50;
+            font-weight: 600;
+            font-family: 'Montserrat', sans-serif;
+        }
+        
+        .document-footer {
+            margin-top: 50px;
+            padding-top: 20px;
+            border-top: 1px solid #e0e0e0;
+            color: #666;
+            font-size: 12px;
+            text-align: center;
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 300;
+        }
+        
+        @media print {
+            body {
+                font-size: 12pt;
+                line-height: 1.4;
+            }
+            .main-title {
+                font-size: 18pt;
+            }
+            .section-heading {
+                font-size: 14pt;
+            }
+        }
+        
+        /* Google Docs copy-paste optimization */
+        * {
+            box-sizing: border-box;
+            font-family: 'Montserrat', sans-serif;
+        }
+        
+        .framework-table {
+            border-spacing: 0;
+        }
+    </style>
+</head>
+<body>
+    <h1 class="main-title">reality_events - Custom 6-Month Testing Framework</h1>
+<br>
+<p><strong>Generated</strong>: 2025-08-06</p>
+<p><strong>Client</strong>: Reality Events - Brisbane-based balloon garland and party hire business specializing in custom backdrop decorations and event styling for women aged 21-60 across Brisbane, Ipswich, and Logan.</p>
+<br>
+<h2 class="section-heading">Primary Competitive Advantages</h2>
+<br>
+<p>1. <strong>Price-Flexible Service Model</strong> - Unique DIY self-collection option alongside full-service, addressing "often too expensive" pain point (Priority: 9/10)</p>
+<p>2. <strong>Permanent Keepsake Signage</strong> - Glossy acrylic signage that clients keep forever, differentiating from disposable decorations (Priority: 8/10)</p>
+<p>3. <strong>Complete Stress-Free Service</strong> - Full setup AND pack-down service with minimal client involvement (Priority: 8/10)</p>
+<p>4. <strong>Simple Consultation Process</strong> - Custom designs created from just theme and budget input (Priority: 7/10)</p>
+<p>5. <strong>Multi-Event Expertise</strong> - Covers graduations, birthdays, engagements, corporate events across age ranges (Priority: 6/10)</p>
+<br>
+<h2 class="section-heading">Key Market Opportunities</h2>
+<br>
+<li><strong>Budget-Conscious Segment</strong> - Competitors focus on premium full-service only, missing price-sensitive families</li>
+<li><strong>Keepsake Value Proposition</strong> - No competitors offer permanent elements beyond single-event decorations</li>
+<li><strong>Stress-Reduction Positioning</strong> - Competitors emphasize quality but ignore convenience for busy families</li>
+<li><strong>Google Ads Recovery</strong> - Previous failure ($2.4k spend, 2 conversions) represents untapped platform opportunity</li>
+<br>
+<h2 class="section-heading">6-Month Performance Targets</h2>
+<br>
+<li><strong>Lead Generation</strong>: 75% increase (from 40/month to 70+ qualified leads/month)</li>
+<li><strong>Platform Diversification</strong>: Google Ads CPA under $75 (vs. previous $1,200 CPA failure)</li>
+<li><strong>Revenue Growth</strong>: $35K to $50K+ monthly revenue through improved AOV and volume</li>
+<li><strong>Market Expansion</strong>: 20% revenue from corporate/graduation events by Month 6</li>
+<br>
+<p>---</p>
+<br>
+<h2 class="section-heading">Testing Hypotheses</h2>
+<br>
+<h4 class="test-heading">Hypothesis 1: Budget-Flexible Positioning Advantage</h4>
+<p><strong>Research Basis</strong>: Questionnaire identifies "often too expensive" as primary customer pain point, DIY option uniquely addresses this</p>
+<p><strong>Competitive Context</strong>: Pretty the Party, Rainbow Events, Balloon Room & Co all focus exclusively on premium full-service positioning</p>
+<p><strong>Client Advantage</strong>: Only provider offering legitimate DIY option starting at $200 vs. competitors' $500+ minimum</p>
+<p><strong>Test Prediction</strong>: Budget-flexible messaging will increase lead volume by 60%+ by capturing previously priced-out segment</p>
+<p><strong>Implementation</strong>:</p>
+<li>Control: Premium full-service messaging only</li>
+<li>Test Variant 1: "Professional decorations that fit any budget - $200 DIY to $800 full-service"</li>
+<li>Test Variant 2: "Choose your style: DIY decoration kits or full setup service"</li>
+<p><strong>Success Metrics</strong>: Lead volume +60%, cost per lead reduction >30%, customer mix diversity</p>
+<p><strong>Timeline</strong>: 3-4 weeks</p>
+<p><strong>Priority</strong>: High (9/10)</p>
+<br>
+<h4 class="test-heading">Hypothesis 2: Keepsake Value Differentiation</h4>
+<p><strong>Research Basis</strong>: Glossy acrylic signage keepsakes identified as unique differentiator in questionnaire</p>
+<p><strong>Competitive Context</strong>: All competitors position decorations as temporary, single-event elements</p>
+<p><strong>Client Advantage</strong>: Only provider offering permanent keepsake elements that justify premium pricing</p>
+<p><strong>Test Prediction</strong>: Keepsake messaging will increase AOV by 30% and conversion rates by 50%</p>
+<p><strong>Implementation</strong>:</p>
+<li>Control: Standard decoration quality messaging</li>
+<li>Test Variant 1: "Decorations + permanent keepsake signage included in every package"</li>
+<li>Test Variant 2: "Your celebration memories preserved in glossy acrylic forever"</li>
+<p><strong>Success Metrics</strong>: AOV increase >25%, conversion rate +40%, premium package selection increase</p>
+<p><strong>Timeline</strong>: 2-3 weeks</p>
+<p><strong>Priority</strong>: High (8/10)</p>
+<br>
+<h4 class="test-heading">Hypothesis 3: Stress-Free Service Priority</h4>
+<p><strong>Research Basis</strong>: Target demographic (families 21-60) identified as busy, values convenience over decoration details</p>
+<p><strong>Competitive Context</strong>: Competitors emphasize quality but don't address stress elimination for busy families</p>
+<p><strong>Client Advantage</strong>: Complete setup AND pack-down service vs. competitors' setup-only focus</p>
+<p><strong>Test Prediction</strong>: Stress-relief messaging will outperform quality-focused messaging by 75%</p>
+<p><strong>Implementation</strong>:</p>
+<li>Control: "Beautiful, professional balloon decorations"</li>
+<li>Test Variant 1: "Completely stress-free parties - we setup AND pack away everything"</li>
+<li>Test Variant 2: "You enjoy the party, we handle everything else"</li>
+<p><strong>Success Metrics</strong>: Engagement rate +60%, conversion rate among working parents +45%</p>
+<p><strong>Timeline</strong>: 2-3 weeks</p>
+<p><strong>Priority</strong>: High (8/10)</p>
+<br>
+<h4 class="test-heading">Hypothesis 4: Google Ads Platform Recovery</h4>
+<p><strong>Research Basis</strong>: Previous Google Ads failure ($2.4k spend, 2 conversions) vs. Meta success (10 bookings/week)</p>
+<p><strong>Competitive Context</strong>: Platform execution gap rather than audience preference - competitors successful on Google</p>
+<p><strong>Client Advantage</strong>: Meta-proven messaging can be adapted for Google search intent</p>
+<p><strong>Test Prediction</strong>: Proper Google Ads execution will achieve 10x improvement (CPA <$100 vs. previous $1,200)</p>
+<p><strong>Implementation</strong>:</p>
+<li>Control: Previous Google Ads approach and targeting</li>
+<li>Test Variant 1: Meta-proven ad copy adapted for search intent ("stress-free party decorations Brisbane")</li>
+<li>Test Variant 2: Local-focused campaigns targeting "balloon garland hire Brisbane" exact match</li>
+<p><strong>Success Metrics</strong>: Google Ads CPA <$75, conversion volume >10/month, Quality Score >7</p>
+<p><strong>Timeline</strong>: 4-6 weeks</p>
+<p><strong>Priority</strong>: High (9/10)</p>
+<br>
+<h4 class="test-heading">Hypothesis 5: Simple Consultation Advantage</h4>
+<p><strong>Research Basis</strong>: Custom design from "just theme and budget" vs. competitors' complex consultation processes</p>
+<p><strong>Competitive Context</strong>: Competitors may require detailed planning sessions and lengthy consultations</p>
+<p><strong>Client Advantage</strong>: Streamlined process appeals to busy target demographic preferring quick decisions</p>
+<p><strong>Test Prediction</strong>: Simple consultation messaging will increase form completion by 65%</p>
+<p><strong>Implementation</strong>:</p>
+<li>Control: "Schedule consultation to discuss your vision in detail"</li>
+<li>Test Variant 1: "Just tell us your theme and budget - we handle the rest"</li>
+<li>Test Variant 2: "Two questions = perfect party: What's your theme? What's your budget?"</li>
+<p><strong>Success Metrics</strong>: Form completion rate +50%, consultation-to-booking conversion +35%</p>
+<p><strong>Timeline</strong>: 3-4 weeks</p>
+<p><strong>Priority</strong>: Medium-High (7/10)</p>
+<br>
+<h4 class="test-heading">Hypothesis 6: Local Brisbane Market Authority</h4>
+<p><strong>Research Basis</strong>: Hyperlocal focus on Brisbane, Ipswich, Logan vs. competitors serving broader geographic areas</p>
+<p><strong>Competitive Context</strong>: Competitors may lack specific local market knowledge and community connection</p>
+<p><strong>Client Advantage</strong>: Local family business with area-specific expertise and community understanding</p>
+<p><strong>Test Prediction</strong>: Local authority messaging will increase conversion relevance by 50%</p>
+<p><strong>Implementation</strong>:</p>
+<li>Control: Generic "party decorations and balloon garlands"</li>
+<li>Test Variant 1: "Brisbane's balloon garland specialists - serving Brisbane, Ipswich & Logan families"</li>
+<li>Test Variant 2: "Local Brisbane family business - we know what works in our community"</li>
+<p><strong>Success Metrics</strong>: Local search visibility improvement, conversion rate +40% for geo-targeted ads</p>
+<p><strong>Timeline</strong>: 2-3 weeks</p>
+<p><strong>Priority</strong>: Medium-High (7/10)</p>
+<br>
+<h4 class="test-heading">Hypothesis 7: Seasonal Event Specialization</h4>
+<p><strong>Research Basis</strong>: Detailed seasonal messaging in questionnaire (graduation Oct-Dec, wedding Sep-May, year-round birthdays)</p>
+<p><strong>Competitive Context</strong>: Competitors use generic year-round messaging without seasonal optimization</p>
+<p><strong>Client Advantage</strong>: Event-specific expertise with seasonal adaptation and targeted messaging</p>
+<p><strong>Test Prediction</strong>: Season-specific messaging will outperform generic messaging by 80% during relevant periods</p>
+<p><strong>Implementation</strong>:</p>
+<li>Control: Generic party decoration messaging year-round</li>
+<li>Test Variant 1: "Graduation season specialists - from high school to uni celebrations" (Oct-Dec)</li>
+<li>Test Variant 2: "Wedding season approaching - engagement party setups that wow" (Sep-May)</li>
+<p><strong>Success Metrics</strong>: Seasonal conversion rate improvements >60%, seasonal AOV increases</p>
+<p><strong>Timeline</strong>: 6-8 weeks (seasonal testing needed)</p>
+<p><strong>Priority</strong>: Medium (6/10)</p>
+<br>
+<h4 class="test-heading">Hypothesis 8: Corporate Market Expansion</h4>
+<p><strong>Research Basis</strong>: Corporate events identified as expansion opportunity with higher value potential</p>
+<p><strong>Competitive Context</strong>: Competitors focus primarily on personal celebrations, limited corporate positioning</p>
+<p><strong>Client Advantage</strong>: Professional capabilities with personal service approach for corporate market</p>
+<p><strong>Test Prediction</strong>: Corporate-focused campaigns will generate new revenue stream with 50% higher AOV</p>
+<p><strong>Implementation</strong>:</p>
+<li>Control: Personal celebration focus only</li>
+<li>Test Variant 1: "Corporate events that boost team morale - professional styling with personal touch"</li>
+<li>Test Variant 2: "Company celebrations and product launches with visual impact"</li>
+<p><strong>Success Metrics</strong>: Corporate lead generation >15% of total, corporate AOV >$1000</p>
+<p><strong>Timeline</strong>: 6-8 weeks</p>
+<p><strong>Priority</strong>: Medium (6/10)</p>
+<br>
+<h4 class="test-heading">Hypothesis 9: Price Transparency Strategy</h4>
+<p><strong>Research Basis</strong>: AOV $800, target CPA $50, addresses "often too expensive" pain point through transparency</p>
+<p><strong>Competitive Context</strong>: Competitor analysis shows competitors avoid clear pricing communication</p>
+<p><strong>Client Advantage</strong>: Transparent pricing builds trust and qualifies leads upfront</p>
+<p><strong>Test Prediction</strong>: Price transparency will improve lead quality by 70% and reduce unqualified inquiries</p>
+<p><strong>Implementation</strong>:</p>
+<li>Control: "Contact us for pricing information"</li>
+<li>Test Variant 1: "Transparent pricing: DIY packages from $200, full-service from $500"</li>
+<li>Test Variant 2: "No hidden fees - see exact pricing for your celebration type"</li>
+<p><strong>Success Metrics</strong>: Qualified lead percentage +65%, booking conversion rate improvement</p>
+<p><strong>Timeline</strong>: 3-4 weeks</p>
+<p><strong>Priority</strong>: Medium-High (7/10)</p>
+<br>
+<h4 class="test-heading">Hypothesis 10: Social Proof and Trust Building</h4>
+<p><strong>Research Basis</strong>: Current 10 bookings/week indicates satisfied customer base, competitor analysis shows trust signals important</p>
+<p><strong>Competitive Context</strong>: Competitors use generic trust signals vs. specific social proof and testimonials</p>
+<p><strong>Client Advantage</strong>: Growing satisfied customer base with demonstrable success stories</p>
+<p><strong>Test Prediction</strong>: Social proof integration will increase conversion by 60%</p>
+<p><strong>Implementation</strong>:</p>
+<li>Control: Service description without social elements</li>
+<li>Test Variant 1: "Join 40+ families monthly who choose Reality Events for stress-free celebrations"</li>
+<li>Test Variant 2: Featured customer testimonials with actual event photos</li>
+<p><strong>Success Metrics</strong>: Trust indicators improvement, conversion rate +45%, repeat customer increase</p>
+<p><strong>Timeline</strong>: 2-3 weeks</p>
+<p><strong>Priority</strong>: Medium-High (7/10)</p>
+<br>
+<h4 class="test-heading">Hypothesis 11: Mobile-First Experience Optimization</h4>
+<p><strong>Research Basis</strong>: Target demographic (families 21-60) likely mobile-heavy, Meta ads success suggests mobile-first approach</p>
+<p><strong>Competitive Context</strong>: Competitor analysis shows mobile optimization opportunities for improved user experience</p>
+<p><strong>Client Advantage</strong>: Can optimize specifically for mobile-first customer journey and form completion</p>
+<p><strong>Test Prediction</strong>: Mobile-optimized campaigns will increase mobile conversion rate by 90%</p>
+<p><strong>Implementation</strong>:</p>
+<li>Control: Desktop-optimized campaign approach</li>
+<li>Test Variant 1: Mobile-first ad creative with thumb-friendly CTAs</li>
+<li>Test Variant 2: Mobile-optimized landing page with simplified mobile form (theme + budget only)</li>
+<p><strong>Success Metrics</strong>: Mobile conversion rate +80%, mobile user experience score improvement</p>
+<p><strong>Timeline</strong>: 3-4 weeks</p>
+<p><strong>Priority</strong>: Medium (6/10)</p>
+<br>
+<h4 class="test-heading">Hypothesis 12: Creative Format Innovation</h4>
+<p><strong>Research Basis</strong>: Meta ads success with visual content, "more flashy setups" mentioned as competitive advantage</p>
+<p><strong>Competitive Context</strong>: Competitors may use standard photography without creative video content</p>
+<p><strong>Client Advantage</strong>: Visual service offering with setup process that can demonstrate transformation</p>
+<p><strong>Test Prediction</strong>: Video creative formats will increase engagement by 120% and reduce ad fatigue</p>
+<p><strong>Implementation</strong>:</p>
+<li>Control: Standard static photography of finished decorations</li>
+<li>Test Variant 1: Before/after transformation videos showing setup process</li>
+<li>Test Variant 2: Time-lapse setup videos demonstrating "stress-free" service</li>
+<p><strong>Success Metrics</strong>: Video completion rates >60%, engagement rate +100%, cost per click reduction</p>
+<p><strong>Timeline</strong>: 4-6 weeks (creative development time)</p>
+<p><strong>Priority</strong>: Medium (6/10)</p>
+<br>
+<p>---</p>
+<br>
+<h2 class="section-heading">Testing Priority Matrix</h2>
+<br>
+<table class="framework-table">
+<thead><tr>
+<th>Test Category</th>
+<th>Impact Score</th>
+<th>Priority</th>
+<th>Month</th>
+</tr></thead><tbody>
+<tr>
+<td>Budget-Flexible Positioning</td>
+<td>9/10</td>
+<td class="priority-high">HIGH</td>
+<td>1</td>
+</tr>
+<tr>
+<td>Google Ads Platform Recovery</td>
+<td>9/10</td>
+<td class="priority-high">HIGH</td>
+<td>1</td>
+</tr>
+<tr>
+<td>Stress-Free Service Priority</td>
+<td>8/10</td>
+<td class="priority-high">HIGH</td>
+<td>1</td>
+</tr>
+<tr>
+<td>Keepsake Value Differentiation</td>
+<td>8/10</td>
+<td class="priority-high">HIGH</td>
+<td>2</td>
+</tr>
+<tr>
+<td>Price Transparency Strategy</td>
+<td>7/10</td>
+<td class="priority-high">MEDIUM-HIGH</td>
+<td>2</td>
+</tr>
+<tr>
+<td>Simple Consultation Advantage</td>
+<td>7/10</td>
+<td class="priority-high">MEDIUM-HIGH</td>
+<td>2</td>
+</tr>
+<tr>
+<td>Local Brisbane Market Authority</td>
+<td>7/10</td>
+<td class="priority-high">MEDIUM-HIGH</td>
+<td>3</td>
+</tr>
+<tr>
+<td>Social Proof and Trust Building</td>
+<td>7/10</td>
+<td class="priority-high">MEDIUM-HIGH</td>
+<td>3</td>
+</tr>
+<tr>
+<td>Mobile-First Experience</td>
+<td>6/10</td>
+<td class="priority-medium">MEDIUM</td>
+<td>4</td>
+</tr>
+<tr>
+<td>Seasonal Event Specialization</td>
+<td>6/10</td>
+<td class="priority-medium">MEDIUM</td>
+<td>4</td>
+</tr>
+<tr>
+<td>Corporate Market Expansion</td>
+<td>6/10</td>
+<td class="priority-medium">MEDIUM</td>
+<td>5</td>
+</tr>
+<tr>
+<td>Creative Format Innovation</td>
+<td>6/10</td>
+<td class="priority-medium">MEDIUM</td>
+<td>5</td>
+</tr>
+</tbody></table>
+<br>
+<p><strong>Month 1</strong>: Focus on core advantages (budget flexibility, Google Ads recovery, stress-free service)</p>
+<p><strong>Month 2</strong>: Exploit differentiation opportunities (keepsakes, pricing, consultation simplicity)</p>
+<p><strong>Month 3</strong>: Build market authority and trust (local positioning, social proof)</p>
+<p><strong>Month 4</strong>: Optimize experience and expand seasonally (mobile, seasonal messaging)</p>
+<p><strong>Month 5</strong>: Scale successful elements and test expansion (corporate market, video creative)</p>
+<p><strong>Month 6</strong>: Integrate winning elements and prepare next cycle</p>
+<br>
+<p><strong>Budget Allocation</strong>: 25% testing budget ($750/month), 75% proven campaigns ($2,250/month) for risk management and business stability.</p>
+    
+    <div class="document-footer">
+        Generated on August 06, 2025 by PPC Campaign Planning System
+    </div>
+</body>
+</html>
